@@ -6,6 +6,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -13,7 +14,10 @@ import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -53,6 +57,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         mSearchText = (EditText) findViewById(R.id.input_search);
+        mGps = (ImageView) findViewById(R.id.ic_my_location);
         getLocationPermissionAndInitialize();
         init();
     }
@@ -69,6 +74,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 searchGeoLocate();
             }
             return false;
+        });
+        mGps.setOnClickListener(v -> {
+            Log.d(TAG, "onClick: clicked gps icon");
+            getDeviceLocation();
         });
     }
     private void searchGeoLocate() {
@@ -141,6 +150,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
         MarkerOptions options = new MarkerOptions().position(latLng);
         gMap.addMarker(options);
+        // Hide the keyboard after searching
+        hideSoftKeyboard();
     }
     // If the user has granted permission, then the map will be initialized
     private void getLocationPermissionAndInitialize(){
@@ -167,6 +178,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             ActivityCompat.requestPermissions(this,
                     permissions,
                     LOCATION_PERMISSION_REQUEST_CODE);
+        }
+    }
+    private void hideSoftKeyboard(){
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
 }
