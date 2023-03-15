@@ -1,4 +1,4 @@
-package com.johntoro.myapplication;
+package com.johntoro.myapplication.adapters;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.TypeAdapter;

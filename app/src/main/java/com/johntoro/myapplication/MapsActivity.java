@@ -1,7 +1,5 @@
 package com.johntoro.myapplication;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -53,6 +51,7 @@ import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRe
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.johntoro.myapplication.adapters.LatLngAdapter;
 import com.johntoro.myapplication.models.GeocodingResult;
 
 import org.json.JSONArray;
@@ -61,29 +60,35 @@ import org.json.JSONException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MapsActivity extends AppCompatActivity implements
+        OnMapReadyCallback
+{
 
+    //region Final Variables
     private static final String TAG = "MapActivity";
     private static final String FINE_LOCATION = android.Manifest.permission.ACCESS_FINE_LOCATION;
     private static final String COARSE_LOCATION = android.Manifest.permission.ACCESS_COARSE_LOCATION;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
     private static final float DEFAULT_ZOOM = 15f;
+    //endregion
 
-    // widgets
+    // region widgets
     private ViewAnimator viewAnimator;
     private ProgressBar progressBar;
     private ImageView mGps, mInfo, mPlacePicker;
-
+    private GoogleMap gMap;
+    // endregion
     // vars
     private Boolean mLocationPermissionsGranted = false;
-    private GoogleMap gMap;
-    // Handle the location service of the search suggestion
+    // region AutoSuggestionSearchLocation
     private final Handler handler = new Handler();
     private final PlacePredictionAdapter adapter = new PlacePredictionAdapter();
     private final Gson gson = new GsonBuilder().registerTypeAdapter(LatLng.class, new LatLngAdapter()).create();
     private RequestQueue queue;
     private PlacesClient placesClient;
     private AutocompleteSessionToken sessionToken;
+    // endregion
+    private Location currentLocation;
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
@@ -102,6 +107,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(singapore, DEFAULT_ZOOM));
             gMap.setOnMapClickListener(latLng -> {
                 viewAnimator.setVisibility(View.GONE);
+                hideSoftKeyboard();
             });
         }
     }
@@ -141,7 +147,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         return super.onOptionsItemSelected(item);
     }
 
-    private void initRecyclerView() {
+    protected void initRecyclerView() {
         final RecyclerView recyclerView = findViewById(R.id.recycler_view);
         final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
@@ -220,7 +226,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
     }
-    private void onClickSuggestionAndMoveCamera(AutocompletePrediction placePrediction) {
+    public void onClickSuggestionAndMoveCamera(AutocompletePrediction placePrediction) {
         // Construct the request URL
         final String apiKey = BuildConfig.MAPS_API_KEY;
         final String url = "https://maps.googleapis.com/maps/api/geocode/json?place_id=%s&key=%s";
@@ -274,7 +280,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 location.addOnCompleteListener(task -> {
                     if (task.isSuccessful()){
                         Log.d(TAG, "onComplete: found location!");
-                        Location currentLocation = (Location) task.getResult();
+                        currentLocation = (Location) task.getResult();
                         if (currentLocation != null) {
                             moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
                             Toast.makeText(MapsActivity.this, "Current location is " + currentLocation.getLatitude() + ", " + currentLocation.getLongitude(), Toast.LENGTH_SHORT).show();
