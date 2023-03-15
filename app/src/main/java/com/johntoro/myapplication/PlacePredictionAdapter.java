@@ -11,7 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
 package com.johntoro.myapplication;
 
 import android.view.LayoutInflater;
@@ -21,7 +20,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.google.android.libraries.places.api.model.AutocompletePrediction;
 
 import java.util.ArrayList;
@@ -33,7 +31,6 @@ import java.util.List;
 public class PlacePredictionAdapter extends RecyclerView.Adapter<PlacePredictionAdapter.PlacePredictionViewHolder> {
 
     private final List<AutocompletePrediction> predictions = new ArrayList<>();
-
     private OnPlaceClickListener onPlaceClickListener;
 
     @NonNull
@@ -45,6 +42,7 @@ public class PlacePredictionAdapter extends RecyclerView.Adapter<PlacePrediction
     }
 
     @Override
+    // Called by LayoutManager
     public void onBindViewHolder(@NonNull PlacePredictionViewHolder holder, int position) {
         final AutocompletePrediction prediction = predictions.get(position);
         holder.setPrediction(prediction);
@@ -63,6 +61,7 @@ public class PlacePredictionAdapter extends RecyclerView.Adapter<PlacePrediction
     public void setPredictions(List<AutocompletePrediction> predictions) {
         this.predictions.clear();
         this.predictions.addAll(predictions);
+        // When the data set changes, notify the adapter so that it can update the RecyclerView -> display the items
         notifyDataSetChanged();
     }
 

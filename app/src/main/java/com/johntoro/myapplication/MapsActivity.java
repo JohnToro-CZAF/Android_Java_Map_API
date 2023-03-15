@@ -11,10 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -22,13 +19,10 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
@@ -63,6 +57,8 @@ import com.johntoro.myapplication.models.GeocodingResult;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -89,7 +85,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private PlacesClient placesClient;
     private AutocompleteSessionToken sessionToken;
 
-    // After initializing the map, the callback function will be triggered to setup the map
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         LatLng singapore = new LatLng(1.290270, 103.851959);
@@ -105,6 +100,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             gMap.setMyLocationEnabled(true);
             gMap.getUiSettings().setMyLocationButtonEnabled(false);
             gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(singapore, DEFAULT_ZOOM));
+            gMap.setOnMapClickListener(latLng -> {
+                viewAnimator.setVisibility(View.GONE);
+            });
         }
     }
     @Override
@@ -150,7 +148,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         recyclerView.setAdapter(adapter);
         recyclerView
                 .addItemDecoration(new DividerItemDecoration(this, layoutManager.getOrientation()));
-        adapter.setPlaceClickListener(this::geocodePlaceAndDisplay);
+        adapter.setPlaceClickListener(this::onClickSuggestionAndMoveCamera);
     }
     private void initGps() {
         Log.d(TAG, "init: initializing");
@@ -176,16 +174,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                searchLocationByString(query);
+                viewAnimator.setVisibility(View.GONE);
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
                 progressBar.setIndeterminate(true);
-
+                viewAnimator.setVisibility(View.VISIBLE);
                 // Cancel any previous place prediction requests
                 handler.removeCallbacksAndMessages(null);
-
                 // Start a new place prediction request in 300 ms
                 handler.postDelayed(() -> {
                     getPlacePredictions(newText);
@@ -211,7 +210,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         placesClient.findAutocompletePredictions(newRequest).addOnSuccessListener((response) -> {
             List<AutocompletePrediction> predictions = response.getAutocompletePredictions();
             adapter.setPredictions(predictions);
-
             progressBar.setIndeterminate(false);
             viewAnimator.setDisplayedChild(predictions.isEmpty() ? 0 : 1);
         }).addOnFailureListener((exception) -> {
@@ -222,7 +220,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
     }
-    private void geocodePlaceAndDisplay(AutocompletePrediction placePrediction) {
+    private void onClickSuggestionAndMoveCamera(AutocompletePrediction placePrediction) {
         // Construct the request URL
         final String apiKey = BuildConfig.MAPS_API_KEY;
         final String url = "https://maps.googleapis.com/maps/api/geocode/json?place_id=%s&key=%s";
@@ -243,6 +241,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         GeocodingResult result = gson.fromJson(
                                 results.getString(0), GeocodingResult.class);
                         moveCamera(result.geometry.location);
+                        MapsActivity.this.viewAnimator.setVisibility(View.GONE);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -250,6 +249,21 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // Add the request to the Request queue.
         queue.add(request);
+    }
+    private void searchLocationByString(String query) {
+        Log.d(TAG, "searchGeoLocation: searching for location");
+        Geocoder geocoder = new Geocoder(MapsActivity.this);
+        List<Address> list = new ArrayList<>();
+        try {
+            list = geocoder.getFromLocationName(query, 1);
+        } catch (Exception e) {
+            Log.e(TAG, "searchGeoLocation: IOException: " + e.getMessage());
+        }
+        if (list.size() > 0) {
+            Address address = list.get(0);
+            Log.d(TAG, "searchGeoLocation: found a location: " + address.toString());
+            moveCamera(new LatLng(address.getLatitude(), address.getLongitude()));
+        }
     }
     private void getDeviceLocation() {
         Log.d(TAG, "getDeviceLocation: getting the devices current location");
