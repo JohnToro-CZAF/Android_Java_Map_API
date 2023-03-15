@@ -63,8 +63,6 @@ import com.johntoro.myapplication.models.GeocodingResult;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -116,14 +114,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         setSupportActionBar(findViewById(R.id.toolbar));
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
         viewAnimator = (ViewAnimator) findViewById(R.id.view_animator);
-        placesClient = (PlacesClient) Places.createClient(this);
+        if (!Places.isInitialized()) {
+            Places.initialize(getApplicationContext(), BuildConfig.MAPS_API_KEY);
+        }
+        placesClient = Places.createClient(this);
         queue = Volley.newRequestQueue(this);
         mGps = (ImageView) findViewById(R.id.ic_my_location);
         initRecyclerView();
-        initGps();
         getLocationPermissionAndInitialize();
         if (mLocationPermissionsGranted) {
             initMap();
+            initGps();
         }
     }
     @Override
