@@ -5,7 +5,7 @@
 
     <androidx.fragment.app.FragmentContainerView xmlns:map="http://schemas.android.com/apk/res-auto"
         android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:id="@+id/map"
+        android:id="@+id/mapView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         map:cameraBearing="112.5"
@@ -26,25 +26,32 @@
         android:elevation="10dp"
         android:background="#fff"
         android:id="@+id/relLayout1">
-        <ImageView
-            android:layout_width="15dp"
-            android:layout_height="15dp"
-            android:src="@drawable/ic_magnify"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="10dp"
-            android:id="@+id/ic_magnify"
-            android:contentDescription="@string/search" />
-        <EditText
+        <androidx.appcompat.widget.Toolbar
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_toRightOf="@id/ic_magnify"
-            android:layout_centerVertical="true"
-            android:textSize="15sp"
-            android:textColor="#000"
-            android:id="@+id/input_search"
-            android:background="@null"
-            android:hint="Enter Address, City or Zipcode"/>
+            android:layout_height="50dp"
+            android:id="@+id/toolbar"
+            android:background="@color/common_google_signin_btn_text_dark_default"
+            />
+        <ProgressBar
+            android:layout_width="match_parent"
+            android:id="@+id/progress_bar"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-7dp"
+            android:layout_marginBottom="-7dp"
+            />
     </RelativeLayout>
+    <ViewAnimator
+        android:id="@+id/view_animator"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </ViewAnimator>
+
     <ImageView
         android:layout_width="40dp"
         android:layout_height="40dp"
