@@ -82,9 +82,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Boolean mLocationPermissionsGranted = false;
     private GoogleMap gMap;
     // Handle the location service of the search suggestion
-    private Handler handler = new Handler();
-    private PlacePredictionAdapter adapter = new PlacePredictionAdapter();
-    private Gson gson = new GsonBuilder().registerTypeAdapter(LatLng.class, new LatLngAdapter()).create();
+    private final Handler handler = new Handler();
+    private final PlacePredictionAdapter adapter = new PlacePredictionAdapter();
+    private final Gson gson = new GsonBuilder().registerTypeAdapter(LatLng.class, new LatLngAdapter()).create();
     private RequestQueue queue;
     private PlacesClient placesClient;
     private AutocompleteSessionToken sessionToken;
