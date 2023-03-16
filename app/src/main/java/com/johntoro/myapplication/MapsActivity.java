@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -77,7 +78,7 @@ public class MapsActivity extends AppCompatActivity implements
     private ViewAnimator viewAnimator;
     private ProgressBar progressBar;
     private ImageView mGps, mInfo, mPlacePicker;
-    private AppCompatButton mOptions;
+    private AppCompatButton mFacilities;
     private GoogleMap gMap;
     // endregion
     // vars
@@ -126,12 +127,13 @@ public class MapsActivity extends AppCompatActivity implements
         placesClient = Places.createClient(this);
         queue = Volley.newRequestQueue(this);
         mGps = (ImageView) findViewById(R.id.ic_my_location);
-        mOptions = (AppCompatButton) findViewById(R.id.btn_options);
+        mFacilities = (AppCompatButton) findViewById(R.id.btn_options);
         initRecyclerView();
         getLocationPermissionAndInitialize();
         if (mLocationPermissionsGranted) {
             initMap();
             initGps();
+            initRetrieveFacilities();
         }
     }
     @Override
@@ -164,6 +166,13 @@ public class MapsActivity extends AppCompatActivity implements
         mGps.setOnClickListener(v -> {
             Log.d(TAG, "onClick: clicked gps icon");
             getDeviceLocation();
+        });
+    }
+    private void initRetrieveFacilities() {
+        Log.d(TAG, "init: initializing BUTTON to retrieve facilities");
+        mFacilities.setOnClickListener(v -> {
+            Log.d(TAG, "onClick: clicked facilities button");
+            retrieveFacilitiesFragment();
         });
     }
     private void initMap() {
@@ -250,7 +259,7 @@ public class MapsActivity extends AppCompatActivity implements
                         GeocodingResult result = gson.fromJson(
                                 results.getString(0), GeocodingResult.class);
                         moveCamera(result.geometry.location);
-                        MapsActivity.this.viewAnimator.setVisibility(View.GONE);
+                        onDropSuggestion(false);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -311,6 +320,9 @@ public class MapsActivity extends AppCompatActivity implements
         // Hide the keyboard after searching
         hideSoftKeyboard();
     }
+    private void retrieveFacilitiesFragment() {
+        NearbyFacilitiesListFragment.newInstance(5).show(getSupportFragmentManager(), "dialog");
+    }
     private void getLocationPermissionAndInitialize(){
         Log.d(TAG, "getLocationPermission: getting location permissions");
         String[] permissions = {android.Manifest.permission.ACCESS_FINE_LOCATION,
@@ -342,11 +354,11 @@ public class MapsActivity extends AppCompatActivity implements
     private void onDropSuggestion(boolean isDrop) {
         if (isDrop) {
             this.viewAnimator.setVisibility(View.VISIBLE);
-            this.mOptions.setVisibility(View.GONE);
+            this.mFacilities.setVisibility(View.GONE);
             this.mGps.setVisibility(View.GONE);
         } else {
            this.viewAnimator.setVisibility(View.GONE);
-           this.mOptions.setVisibility(View.VISIBLE);
+           this.mFacilities.setVisibility(View.VISIBLE);
            this.mGps.setVisibility(View.VISIBLE);
         }
     }
