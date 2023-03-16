@@ -6,6 +6,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.johntoro.myapplication.databinding.FragmentNearbyFacilitiesListListBinding;
+import com.johntoro.myapplication.databinding.FragmentNearbyFacilitiesListListItemBinding;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,9 +17,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import com.johntoro.myapplication.databinding.FragmentNearbyFacilitiesListListItemBinding;
-import com.johntoro.myapplication.databinding.FragmentNearbyFacilitiesListListBinding;
 
 /**
  * <p>A fragment that shows a list of items as a modal bottom sheet.</p>
@@ -31,10 +30,8 @@ public class NearbyFacilitiesListFragment extends BottomSheetDialogFragment {
     // TODO: Customize parameter argument names
     protected static final String ARG_ITEM_COUNT = "item_count";
     private final String TAG = this.getClass().getSimpleName();
-    private FragmentNearbyFacilitiesListListBinding binding;
-    private String radius;
+    FragmentNearbyFacilitiesListListBinding binding;
     // TODO: Customize parameters
-
     public static NearbyFacilitiesListFragment newInstance(int itemCount) {
         final NearbyFacilitiesListFragment fragment = new NearbyFacilitiesListFragment();
         final Bundle args = new Bundle();
@@ -48,12 +45,6 @@ public class NearbyFacilitiesListFragment extends BottomSheetDialogFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         Bundle bundle = getArguments();
-        if (bundle != null) {
-            radius = bundle.getString("radius");
-            Log.d(TAG, "onCreateView: " + radius);
-        } else {
-            Log.d(TAG, "onCreateView: bundle is null");
-        }
         binding = FragmentNearbyFacilitiesListListBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
