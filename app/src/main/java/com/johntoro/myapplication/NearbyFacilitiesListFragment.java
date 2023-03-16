@@ -9,6 +9,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.johntoro.myapplication.databinding.FragmentNearbyFacilitiesListListBinding;
 import com.johntoro.myapplication.databinding.FragmentNearbyFacilitiesListListItemBinding;
 
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -25,7 +26,7 @@ import android.widget.TextView;
  *     NearbyFacilitiesListFragment.newInstance(30).show(getSupportFragmentManager(), "dialog");
  * </pre>
  */
-public class NearbyFacilitiesListFragment extends BottomSheetDialogFragment {
+public class NearbyFacilitiesListFragment extends Fragment {
 
     // TODO: Customize parameter argument names
     protected static final String ARG_ITEM_COUNT = "item_count";
@@ -92,6 +93,5 @@ public class NearbyFacilitiesListFragment extends BottomSheetDialogFragment {
         public int getItemCount() {
             return mItemCount;
         }
-
     }
 }

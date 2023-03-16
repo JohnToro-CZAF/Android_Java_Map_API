@@ -26,6 +26,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.Toast;
 import android.widget.ViewAnimator;
@@ -52,6 +53,7 @@ import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.api.model.TypeFilter;
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.johntoro.myapplication.adapters.LatLngAdapter;
@@ -76,6 +78,8 @@ public class MapsActivity extends AppCompatActivity implements
 
     // region widgets
     private ViewAnimator viewAnimator;
+    private BottomSheetBehavior bottomSheetBehavior;
+    private RelativeLayout bottomSheet;
     private ProgressBar progressBar;
     private ImageView mGps, mInfo, mPlacePicker;
     private AppCompatButton mFacilities;
@@ -109,6 +113,7 @@ public class MapsActivity extends AppCompatActivity implements
             gMap.getUiSettings().setMyLocationButtonEnabled(false);
             gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(singapore, DEFAULT_ZOOM));
             gMap.setOnMapClickListener(latLng -> {
+                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 onDropSuggestion(false);
                 hideSoftKeyboard();
             });
@@ -128,6 +133,8 @@ public class MapsActivity extends AppCompatActivity implements
         queue = Volley.newRequestQueue(this);
         mGps = (ImageView) findViewById(R.id.ic_my_location);
         mFacilities = (AppCompatButton) findViewById(R.id.btn_options);
+        bottomSheet = (RelativeLayout) findViewById(R.id.bottom_sheet);
+        bottomSheetBehavior=BottomSheetBehavior.from(bottomSheet);
         initRecyclerView();
         getLocationPermissionAndInitialize();
         if (mLocationPermissionsGranted) {
@@ -321,7 +328,12 @@ public class MapsActivity extends AppCompatActivity implements
         hideSoftKeyboard();
     }
     private void retrieveFacilitiesFragment() {
-        NearbyFacilitiesListFragment.newInstance(5).show(getSupportFragmentManager(), "dialog");
+        NearbyFacilitiesListFragment nearbyFacilitiesListFragment = NearbyFacilitiesListFragment.newInstance(5);
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.fragment_container_view, nearbyFacilitiesListFragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
     private void getLocationPermissionAndInitialize(){
         Log.d(TAG, "getLocationPermission: getting location permissions");
