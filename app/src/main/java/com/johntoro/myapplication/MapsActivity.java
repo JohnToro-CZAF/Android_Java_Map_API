@@ -2,6 +2,7 @@ package com.johntoro.myapplication;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -21,6 +22,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
@@ -63,7 +65,6 @@ import java.util.List;
 public class MapsActivity extends AppCompatActivity implements
         OnMapReadyCallback
 {
-
     //region Final Variables
     private static final String TAG = "MapActivity";
     private static final String FINE_LOCATION = android.Manifest.permission.ACCESS_FINE_LOCATION;
@@ -76,6 +77,7 @@ public class MapsActivity extends AppCompatActivity implements
     private ViewAnimator viewAnimator;
     private ProgressBar progressBar;
     private ImageView mGps, mInfo, mPlacePicker;
+    private AppCompatButton mOptions;
     private GoogleMap gMap;
     // endregion
     // vars
@@ -106,7 +108,7 @@ public class MapsActivity extends AppCompatActivity implements
             gMap.getUiSettings().setMyLocationButtonEnabled(false);
             gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(singapore, DEFAULT_ZOOM));
             gMap.setOnMapClickListener(latLng -> {
-                viewAnimator.setVisibility(View.GONE);
+                onDropSuggestion(false);
                 hideSoftKeyboard();
             });
         }
@@ -124,6 +126,7 @@ public class MapsActivity extends AppCompatActivity implements
         placesClient = Places.createClient(this);
         queue = Volley.newRequestQueue(this);
         mGps = (ImageView) findViewById(R.id.ic_my_location);
+        mOptions = (AppCompatButton) findViewById(R.id.btn_options);
         initRecyclerView();
         getLocationPermissionAndInitialize();
         if (mLocationPermissionsGranted) {
@@ -181,14 +184,14 @@ public class MapsActivity extends AppCompatActivity implements
             @Override
             public boolean onQueryTextSubmit(String query) {
                 searchLocationByString(query);
-                viewAnimator.setVisibility(View.GONE);
+                onDropSuggestion(false);
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
                 progressBar.setIndeterminate(true);
-                viewAnimator.setVisibility(View.VISIBLE);
+                onDropSuggestion(true);
                 // Cancel any previous place prediction requests
                 handler.removeCallbacksAndMessages(null);
                 // Start a new place prediction request in 300 ms
@@ -334,6 +337,17 @@ public class MapsActivity extends AppCompatActivity implements
         if (view != null) {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
+    private void onDropSuggestion(boolean isDrop) {
+        if (isDrop) {
+            this.viewAnimator.setVisibility(View.VISIBLE);
+            this.mOptions.setVisibility(View.GONE);
+            this.mGps.setVisibility(View.GONE);
+        } else {
+           this.viewAnimator.setVisibility(View.GONE);
+           this.mOptions.setVisibility(View.VISIBLE);
+           this.mGps.setVisibility(View.VISIBLE);
         }
     }
 }
