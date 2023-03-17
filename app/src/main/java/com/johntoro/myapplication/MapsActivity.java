@@ -39,7 +39,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -104,6 +106,7 @@ public class MapsActivity extends AppCompatActivity implements
     // endregion
     private android.location.Location currentLocation;
     private List<Results> nearByFacilities;
+    private List<Marker> nearByFacilitiesMarkers;
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
@@ -122,6 +125,9 @@ public class MapsActivity extends AppCompatActivity implements
             gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(singapore, DEFAULT_ZOOM));
             gMap.setOnMapClickListener(latLng -> {
                 bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                nearByFacilities.clear();
+                removeMarkers();
+                nearByFacilitiesMarkers.clear();
                 onDropSuggestion(false);
                 hideSoftKeyboard();
             });
@@ -335,6 +341,20 @@ public class MapsActivity extends AppCompatActivity implements
         // Hide the keyboard after searching
         hideSoftKeyboard();
     }
+    private void moveCamera(List<Results> nearByFacilities) {
+        double lat = 0.0;
+        double lng = 0.0;
+        for (Results facility : nearByFacilities) {
+            LatLng latLng = facility.getGeometry().getLocation().getLatLng();
+            lat += latLng.latitude;
+            lng += latLng.longitude;
+        }
+        lat += currentLocation.getLatitude();
+        lng += currentLocation.getLongitude();
+        lat /= (nearByFacilities.size() + 1);
+        lng /= (nearByFacilities.size() + 1);
+        gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), DEFAULT_ZOOM));
+    }
     private String buildUrl(double latitude, double longitude, String API_KEY) {
         String placeType = "bank";
         return "api/place/nearbysearch/json?" + "location=" +
@@ -363,6 +383,8 @@ public class MapsActivity extends AppCompatActivity implements
                 if (nearByResponse != null) {
                     nearByFacilities = nearByResponse.getResults();
                     // region set up the bottom sheet once we got List<Results>
+                    createMarkers(nearByFacilities);
+                    moveCamera(nearByFacilities);
                     NearbyFacilitiesListFragment nearbyFacilitiesListFragment = NearbyFacilitiesListFragment.newInstance(nearByFacilities);
                     nearbyFacilitiesListFragment.setOnItemClickListener(MapsActivity.this::moveCamera);
                     FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
@@ -381,6 +403,22 @@ public class MapsActivity extends AppCompatActivity implements
                 Toast.makeText(MapsActivity.this, "" + t.toString(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    private void createMarkers(List<Results> nearByFacilities) {
+        nearByFacilitiesMarkers = new ArrayList<Marker>();
+        for (Results facility : nearByFacilities) {
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(facility.getGeometry().getLocation().getLatLng())
+                    .title(facility.getName())
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+            Marker marker = gMap.addMarker(markerOptions);
+            nearByFacilitiesMarkers.add(marker);
+        }
+    }
+    private void removeMarkers() {
+        for (Marker marker : nearByFacilitiesMarkers) {
+            marker.remove();
+        }
     }
     private void getLocationPermissionAndInitialize(){
         Log.d(TAG, "getLocationPermission: getting location permissions");

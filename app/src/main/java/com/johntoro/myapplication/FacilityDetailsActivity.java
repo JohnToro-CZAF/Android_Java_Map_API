@@ -1,29 +1,20 @@
 package com.johntoro.myapplication;
 
 import android.os.Bundle;
-import android.text.Layout;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
-import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.johntoro.myapplication.models.Photos;
 import com.johntoro.myapplication.models.Results;
 import com.squareup.picasso.Picasso;
-
-import java.util.Objects;
 
 public class FacilityDetailsActivity extends AppCompatActivity {
     private static final String TAG = FacilityDetailsActivity.class.getName();
