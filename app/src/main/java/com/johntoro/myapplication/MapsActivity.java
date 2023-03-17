@@ -1,6 +1,7 @@
 package com.johntoro.myapplication;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.app.ActivityCompat;
@@ -13,9 +14,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -24,6 +28,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.SearchView;
@@ -43,6 +48,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -61,14 +67,27 @@ import com.johntoro.myapplication.adapters.LatLngAdapter;
 import com.johntoro.myapplication.models.GeocodingResult;
 import com.johntoro.myapplication.models.NearByResponse;
 import com.johntoro.myapplication.models.Results;
+import com.johntoro.myapplication.remotes.DirectionsJSONParser;
+import com.johntoro.myapplication.remotes.HandleURL;
 import com.johntoro.myapplication.remotes.GoogleApiService;
 import com.johntoro.myapplication.remotes.RetrofitBuilder;
-import com.johntoro.myapplication.models.Location;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
+import com.google.maps.android.SphericalUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -84,15 +103,16 @@ public class MapsActivity extends AppCompatActivity implements
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
     private static final float DEFAULT_ZOOM = 15f;
     //endregion
-
     // region widgets
     private ViewAnimator viewAnimator;
     private BottomSheetBehavior bottomSheetBehavior;
     private RelativeLayout bottomSheet;
     private ProgressBar progressBar;
     private ImageView mGps, mInfo, mPlacePicker;
-    private AppCompatButton mFacilities;
+    private AppCompatButton mHospital, mRestaurent, mPetro, mCarPark;
+    private LinearLayout mFacilitiesLayout;
     private GoogleMap gMap;
+    private Marker currentLocationMarker;
     // endregion
     // vars
     private Boolean mLocationPermissionsGranted = false;
@@ -106,6 +126,8 @@ public class MapsActivity extends AppCompatActivity implements
     private AutocompleteSessionToken sessionToken;
     // endregion
     private android.location.Location currentLocation;
+    // TODO: SearchedLocation
+    private android.location.Location searchedLocation;
     private List<Results> nearByFacilities;
     private List<Marker> nearByFacilitiesMarkers;
 
@@ -147,7 +169,11 @@ public class MapsActivity extends AppCompatActivity implements
         placesClient = Places.createClient(this);
         queue = Volley.newRequestQueue(this);
         mGps = (ImageView) findViewById(R.id.ic_my_location);
-        mFacilities = (AppCompatButton) findViewById(R.id.btn_options);
+        mHospital = (AppCompatButton) findViewById(R.id.btn_options_hospital);
+        mRestaurent = (AppCompatButton) findViewById(R.id.btn_options_restaurant);
+        mCarPark = (AppCompatButton) findViewById(R.id.btn_options_carpark);
+        mPetro = (AppCompatButton) findViewById(R.id.btn_options_petro_station);
+        mFacilitiesLayout = (LinearLayout) findViewById(R.id.facilities_buttons_layout);
         bottomSheet = (RelativeLayout) findViewById(R.id.bottom_sheet);
         bottomSheetBehavior=BottomSheetBehavior.from(bottomSheet);
         initRecyclerView();
@@ -192,9 +218,33 @@ public class MapsActivity extends AppCompatActivity implements
     }
     private void initRetrieveFacilities () {
         Log.d(TAG, "init: initializing BUTTON to retrieve facilities");
-        mFacilities.setOnClickListener(v -> {
-            Log.d(TAG, "onClick: clicked facilities button");
-            retrieveFacilitiesFragment();
+        mPetro.setOnClickListener(v -> {
+            Log.d(TAG, "onClick: clicked petro station button");
+            if (isNearByFacilities) {
+                onExitNearByFacilities();
+            }
+            retrieveFacilitiesFragment("petro station");
+        });
+        mHospital.setOnClickListener(v -> {
+            Log.d(TAG, "onClick: clicked hospital button");
+            if (isNearByFacilities) {
+                onExitNearByFacilities();
+            }
+            retrieveFacilitiesFragment("hospital");
+        });
+        mRestaurent.setOnClickListener(v -> {
+            Log.d(TAG, "onClick: clicked restaurant button");
+            if (isNearByFacilities) {
+                onExitNearByFacilities();
+            }
+            retrieveFacilitiesFragment("restaurant");
+        });
+        mCarPark.setOnClickListener(v -> {
+            Log.d(TAG, "onClick: clicked car park button");
+            if (isNearByFacilities) {
+                onExitNearByFacilities();
+            }
+            retrieveFacilitiesFragment("car park");
         });
     }
     private void initMap () {
@@ -334,11 +384,20 @@ public class MapsActivity extends AppCompatActivity implements
             Log.e(TAG, "getDeviceLocation: SecurityException: " + e.getMessage() );
         }
     }
-    private void moveCamera (LatLng latLng){
+    private void moveCamera (LatLng latLng) {
         Log.d(TAG, "moveCamera: moving the camera to: lat: " + latLng.latitude + ", lng: " + latLng.longitude );
         gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
         MarkerOptions options = new MarkerOptions().position(latLng);
         gMap.addMarker(options);
+        // Hide the keyboard after searching
+        hideSoftKeyboard();
+    }
+    private void moveCamera (LatLng latLng, double zoom) {
+        Log.d(TAG, "moveCamera: moving the camera to: lat: " + latLng.latitude + ", lng: " + latLng.longitude );
+        gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
+        MarkerOptions options = new MarkerOptions().position(latLng);
+        gMap.addMarker(options);
+        gMap.animateCamera(CameraUpdateFactory.zoomTo((float) zoom));
         // Hide the keyboard after searching
         hideSoftKeyboard();
     }
@@ -356,17 +415,16 @@ public class MapsActivity extends AppCompatActivity implements
         lng /= (nearByFacilities.size() + 1);
         gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), DEFAULT_ZOOM));
     }
-    private String buildUrl (double latitude, double longitude, String API_KEY) {
-        String placeType = "bank";
+    private String buildUrl (double latitude, double longitude, String API_KEY, String facilityType) {
         return "api/place/nearbysearch/json?" + "location=" +
                 Double.toString(latitude) +
                 "," +
                 Double.toString(longitude) +
                 "&radius=5000" + // places between 5 kilometer
-                "&types=" + placeType.toLowerCase() +
+                "&types=" + facilityType.toLowerCase() +
                 "&key=" + API_KEY;
     }
-    private void retrieveFacilitiesFragment () {
+    private void retrieveFacilitiesFragment (String facilityType) {
         isNearByFacilities = true;
         final ProgressDialog dialog = new ProgressDialog(this);
         dialog.setMessage("Loading...");
@@ -374,7 +432,7 @@ public class MapsActivity extends AppCompatActivity implements
         dialog.setIndeterminate(false);
         dialog.show();
         String apiKey = BuildConfig.MAPS_API_KEY;
-        String url = buildUrl(currentLocation.getLatitude(), currentLocation.getLongitude(), apiKey);
+        String url = buildUrl(currentLocation.getLatitude(), currentLocation.getLongitude(), apiKey, facilityType);
         Log.d("finalUrl", url);
         GoogleApiService googleApiService = RetrofitBuilder.builder().create(GoogleApiService.class);
         Call<NearByResponse> call = googleApiService.getMyNearByPlaces(url);
@@ -389,6 +447,7 @@ public class MapsActivity extends AppCompatActivity implements
                     moveCamera(nearByFacilities);
                     NearbyFacilitiesListFragment nearbyFacilitiesListFragment = NearbyFacilitiesListFragment.newInstance(nearByFacilities);
                     nearbyFacilitiesListFragment.setOnItemClickListener(MapsActivity.this::moveCamera);
+                    nearbyFacilitiesListFragment.setOnItemDetailsClickListener(MapsActivity.this::startFacilityDetails);
                     FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                     fragmentTransaction.replace(R.id.fragment_container_view, nearbyFacilitiesListFragment);
                     fragmentTransaction.addToBackStack(null);
@@ -405,6 +464,74 @@ public class MapsActivity extends AppCompatActivity implements
                 Toast.makeText(MapsActivity.this, "" + t.toString(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    protected class FacilityDetailsContract extends ActivityResultContract<Bundle, Results> {
+        @NonNull
+        public Intent createIntent(@NonNull Context context, Bundle input) {
+            Intent intent = new Intent(context, FacilityDetailsActivity.class);
+            intent.putExtras(input);
+            return intent;
+        }
+        @Override
+        public Results parseResult(int resultCode, @Nullable Intent intent) {
+            if (resultCode != RESULT_OK) {
+                return null;
+            }
+            return (Results) intent.getSerializableExtra("showDistance");
+        }
+    }
+    ActivityResultLauncher<Bundle> facilityDetailsLauncher = registerForActivityResult(
+            new FacilityDetailsContract(),
+            (Results results) -> {onExitNearByFacilities(); showDistance(results); showDirection(results);}
+    );
+
+    private void showDistance(Results chosenFacility) {
+        LatLng chosenFacilityLatLng = chosenFacility.getGeometry().getLocation().getLatLng();
+        LatLng currentLocationLatLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+        double distance = SphericalUtil.computeDistanceBetween(chosenFacilityLatLng, currentLocationLatLng);
+        distance /= 1000;
+        String distanceString = String.format("%.2f", distance);
+        Toast.makeText(this, "Distance: " + distanceString + " km", Toast.LENGTH_SHORT).show();
+    }
+    private void showDirection(Results results) {
+        LatLng destination = results.getGeometry().getLocation().getLatLng();
+        LatLng currentPosition = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+        // region For destination
+        gMap.addMarker(new MarkerOptions()
+                .position(destination)
+                .title(results.getName())
+                .snippet(results.getVicinity())
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                .alpha(1f)).showInfoWindow();
+        gMap.moveCamera(CameraUpdateFactory.newLatLng(destination));
+        gMap.animateCamera(CameraUpdateFactory.newLatLngZoom(destination, 13.0f));
+        gMap.getUiSettings().setCompassEnabled(true);
+        gMap.getUiSettings().setZoomControlsEnabled(true);
+        // endregion
+        // region For currentLocation
+        gMap.addMarker(new MarkerOptions().position(currentPosition)
+                        .title("Your Location")
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                        .alpha(1f)).showInfoWindow();
+
+        gMap.moveCamera(CameraUpdateFactory.newLatLng(currentPosition));
+        gMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentPosition, 13.0f));
+        gMap.getUiSettings().setCompassEnabled(true);
+        gMap.getUiSettings().setZoomControlsEnabled(true);
+        // endregion
+        HandleURL handleURL = new HandleURL(destination, currentPosition);
+        String url = handleURL.getDirectionsUrl();
+        PlotDirection plotDirection = new PlotDirection();
+        plotDirection.execute(url);
+        Log.d(TAG, "showDirection got first oops: " + url);
+        gMap.setTrafficEnabled(false);
+        moveCamera(currentPosition, 15.0f);
+    }
+    private void startFacilityDetails(Results results) {
+        // Attach this method to fragment's onItemDetailsClickListener
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(FacilityDetailsActivity.FACILITY_DETAILS, results);
+        facilityDetailsLauncher.launch(bundle);
     }
     private void createMarkers (List<Results> nearByFacilities) {
         nearByFacilitiesMarkers = new ArrayList<Marker>();
@@ -445,7 +572,7 @@ public class MapsActivity extends AppCompatActivity implements
                     LOCATION_PERMISSION_REQUEST_CODE);
         }
     }
-    private void hideSoftKeyboard (){
+    private void hideSoftKeyboard () {
         View view = this.getCurrentFocus();
         if (view != null) {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -463,12 +590,121 @@ public class MapsActivity extends AppCompatActivity implements
     private void onDropSuggestion (boolean isDrop) {
         if (isDrop) {
             this.viewAnimator.setVisibility(View.VISIBLE);
-            this.mFacilities.setVisibility(View.GONE);
+            this.mFacilitiesLayout.setVisibility(View.GONE);
             this.mGps.setVisibility(View.GONE);
         } else {
            this.viewAnimator.setVisibility(View.GONE);
-           this.mFacilities.setVisibility(View.VISIBLE);
+           this.mFacilitiesLayout.setVisibility(View.VISIBLE);
            this.mGps.setVisibility(View.VISIBLE);
+        }
+    }
+    private class PlotDirection extends AsyncTask<String, Void, String> {
+        private String downloadUrl(String strUrl) throws IOException {
+            String data = "";
+            InputStream iStream = null;
+            HttpURLConnection urlConnection = null;
+            try {
+                URL url = new URL(strUrl);
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.connect();
+                iStream = urlConnection.getInputStream();
+                BufferedReader br = new BufferedReader(new InputStreamReader(iStream));
+                StringBuffer sb = new StringBuffer();
+                String line = "";
+                while ((line = br.readLine()) != null) {
+                    sb.append(line);
+                }
+                data = sb.toString();
+                Log.d("downloadUrl", data.toString());
+                br.close();
+
+            } catch (Exception e) {
+                Log.d("Exception", e.toString());
+            } finally {
+                iStream.close();
+                urlConnection.disconnect();
+            }
+            return data;
+        }
+        @Override
+        protected String doInBackground(String... url) {
+            String data = "";
+            try {
+                // Fetching the data from web service
+                data = downloadUrl(url[0]);
+                Log.d("Background Task data", data.toString());
+            } catch (Exception e) {
+                Log.d("Background Task", e.toString());
+            }
+            return data;
+        }
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            ParserTask parserTask = new ParserTask();
+            Log.d("ParserTask", result.toString());
+            // Invokes the thread for parsing the JSON data
+            parserTask.execute(result);
+        }
+    }
+    private class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
+        // Parsing the data in non-ui thread
+        @Override
+        protected List<List<HashMap<String, String>>> doInBackground(String... jsonData) {
+
+            JSONObject jObject;
+            List<List<HashMap<String, String>>> routes = null;
+
+            try {
+                jObject = new JSONObject(jsonData[0]);
+                Log.d("ParserTask", jsonData[0].toString());
+                DirectionsJSONParser parser = new DirectionsJSONParser();
+                Log.d("ParserTask", parser.toString());
+
+                // Starts parsing data
+                routes = parser.parse(jObject);
+                Log.d("ParserTask", "Executing routes");
+                Log.d("ParserTask", routes.toString());
+
+            } catch (Exception e) {
+                Log.d("ParserTask", e.toString());
+                e.printStackTrace();
+            }
+            return routes;
+        }
+        // Executes in UI thread, after the parsing process
+        @Override
+        protected void onPostExecute(List<List<HashMap<String, String>>> result) {
+            ArrayList<LatLng> points;
+            PolylineOptions lineOptions = null;
+            // Traversing through all the routes
+            for (int i = 0; i < result.size(); i++) {
+                points = new ArrayList<>();
+                lineOptions = new PolylineOptions();
+                // Fetching i-th route
+                List<HashMap<String, String>> path = result.get(i);
+
+                // Fetching all the points in i-th route
+                for (int j = 0; j < path.size(); j++) {
+                    HashMap<String, String> point = path.get(j);
+                    double lat = Double.parseDouble(point.get("lat"));
+                    double lng = Double.parseDouble(point.get("lng"));
+                    LatLng position = new LatLng(lat, lng);
+                    points.add(position);
+                }
+                // Adding all the points in the route to LineOptions
+                lineOptions.addAll(points);
+                lineOptions.width(10);
+                lineOptions.color(Color.RED);
+
+                Log.d("onPostExecute", "onPostExecute lineoptions decoded");
+            }
+            // Drawing polyline in the Google Map for the i-th route
+            if (lineOptions != null) {
+                gMap.addPolyline(lineOptions);
+            } else {
+                Log.d("onPostExecute", "without Polylines drawn");
+            }
         }
     }
 }

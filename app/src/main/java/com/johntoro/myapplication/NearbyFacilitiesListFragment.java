@@ -28,6 +28,7 @@ public class NearbyFacilitiesListFragment extends Fragment {
     private static final String TAG = NearbyFacilitiesListFragment.class.getSimpleName();
     private FragmentNearbyFacilitiesListListBinding binding;
     private OnItemLocateClickListener onItemLocateClickListener;
+    private OnItemDetailsClickListener onItemDetailsClickListener;
 
     public static NearbyFacilitiesListFragment newInstance(List<Results> results) {
         final NearbyFacilitiesListFragment fragment = new NearbyFacilitiesListFragment();
@@ -57,7 +58,6 @@ public class NearbyFacilitiesListFragment extends Fragment {
             recyclerView.setAdapter(new ItemAdapter(results));
         }
     }
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -66,6 +66,9 @@ public class NearbyFacilitiesListFragment extends Fragment {
 
     public void setOnItemClickListener(OnItemLocateClickListener listener) {
         this.onItemLocateClickListener = listener;
+    }
+    public void setOnItemDetailsClickListener(OnItemDetailsClickListener listener) {
+        this.onItemDetailsClickListener = listener;
     }
 
     private class ItemAdapter extends RecyclerView.Adapter<ViewHolder> {
@@ -94,11 +97,12 @@ public class NearbyFacilitiesListFragment extends Fragment {
             });
             holder.facilityDetails.setOnClickListener(v -> {
                 Log.d(TAG, "onClick: " + facilityDetails.toString());
-                Intent intent = new Intent(getContext(), FacilityDetailsActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putSerializable(FacilityDetailsActivity.FACILITY_DETAILS, (Serializable) facilityDetails);
-                intent.putExtras(bundle);
-                startActivity(intent);
+//                Intent intent = new Intent(getContext(), FacilityDetailsActivity.class);
+//                Bundle bundle = new Bundle();
+//                bundle.putSerializable(FacilityDetailsActivity.FACILITY_DETAILS, (Serializable) facilityDetails);
+//                intent.putExtras(bundle);
+//                startActivity(intent);
+                onItemDetailsClickListener.onItemDetailsClickListener(facilityDetails);
             });
         }
         @Override
@@ -120,5 +124,8 @@ public class NearbyFacilitiesListFragment extends Fragment {
     }
     interface OnItemLocateClickListener {
         void onItemLocateClickListener(LatLng latLng);
+    }
+    interface OnItemDetailsClickListener {
+        void onItemDetailsClickListener(Results facilityDetails);
     }
 }

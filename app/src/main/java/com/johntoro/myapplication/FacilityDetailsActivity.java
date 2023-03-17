@@ -1,5 +1,6 @@
 package com.johntoro.myapplication;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -16,13 +17,15 @@ import com.johntoro.myapplication.models.Photos;
 import com.johntoro.myapplication.models.Results;
 import com.squareup.picasso.Picasso;
 
+import java.io.Serializable;
+
 public class FacilityDetailsActivity extends AppCompatActivity {
     private static final String TAG = FacilityDetailsActivity.class.getName();
     public static final String FACILITY_DETAILS = "facility_details";
     private ImageView facilityImage;
     private TextView facilityName, facilityRating, facilityAddress, facilityAvailability;
     private RatingBar facilityRatingBar;
-    private LinearLayout linearLayoutRating;
+    private LinearLayout linearLayoutRating, linearLayoutShowDistanceOnMap;
 
     //vars
     private Results results;
@@ -81,16 +84,12 @@ public class FacilityDetailsActivity extends AppCompatActivity {
         } else {
             facilityAvailability.setText(R.string.warning_no_opening_hours);
         }
-//        linearLayoutShowDistanceOnMap.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Intent intent = new Intent(PlaceDetailsActivity.this, PlaceOnMapActivity.class);
-//                intent.putExtra("result", results);
-//                intent.putExtra("lat", lat);
-//                intent.putExtra("lng", lng);
-//                intent.putExtra("type", "distance");
-//                startActivity(intent);
-//            }
-//        });
+        linearLayoutShowDistanceOnMap = (LinearLayout) findViewById(R.id.linearLayoutShowDistanceOnMap);
+        linearLayoutShowDistanceOnMap.setOnClickListener(view -> {
+            Intent replyIntent = new Intent(FacilityDetailsActivity.this, MapsActivity.class);
+            replyIntent.putExtra("showDistance", (Serializable) results);
+            setResult(RESULT_OK, replyIntent);
+            finish();
+        });
     }
 }
