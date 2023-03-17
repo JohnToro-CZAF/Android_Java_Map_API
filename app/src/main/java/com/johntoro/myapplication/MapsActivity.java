@@ -418,10 +418,11 @@ public class MapsActivity extends AppCompatActivity implements
         }
     }
     private void removeMarkers () {
-        for (Marker marker : nearByFacilitiesMarkers) {
-            Log.d("removeMarkers", "removeMarkers: " + marker.getTitle());
-            marker.remove();
-        }
+        // TODO: remove all needed markers instead of by marker.remove() but this method
+        // TODO: is not working
+        gMap.clear();
+        LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+        gMap.addMarker(new MarkerOptions().position(latLng).title("Current Location"));
     }
     private void getLocationPermissionAndInitialize (){
         Log.d(TAG, "getLocationPermission: getting location permissions");
