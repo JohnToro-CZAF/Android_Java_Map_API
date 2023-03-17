@@ -16,7 +16,6 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -62,6 +61,7 @@ import com.johntoro.myapplication.models.NearByResponse;
 import com.johntoro.myapplication.models.Results;
 import com.johntoro.myapplication.remotes.GoogleApiService;
 import com.johntoro.myapplication.remotes.RetrofitBuilder;
+import com.johntoro.myapplication.models.Location;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -102,8 +102,8 @@ public class MapsActivity extends AppCompatActivity implements
     private PlacesClient placesClient;
     private AutocompleteSessionToken sessionToken;
     // endregion
-    private Location currentLocation;
-    private NearByResponse nearByResponse;
+    private android.location.Location currentLocation;
+    private List<Results> nearByFacilities;
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
@@ -269,11 +269,11 @@ public class MapsActivity extends AppCompatActivity implements
                             Log.w(TAG, "No results from geocoding request.");
                             return;
                         }
-
                         // Use Gson to convert the response JSON object to a POJO
                         GeocodingResult result = gson.fromJson(
                                 results.getString(0), GeocodingResult.class);
-                        moveCamera(result.geometry.location);
+                        LatLng latLng = result.geometry.getLocation().getLatLng();
+                        moveCamera(latLng);
                         onDropSuggestion(false);
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -303,11 +303,11 @@ public class MapsActivity extends AppCompatActivity implements
         FusedLocationProviderClient mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         try {
             if (mLocationPermissionsGranted) {
-                @SuppressLint("MissingPermission") Task<Location> location = mFusedLocationProviderClient.getLastLocation();
+                @SuppressLint("MissingPermission") Task<android.location.Location> location = mFusedLocationProviderClient.getLastLocation();
                 location.addOnCompleteListener(task -> {
                     if (task.isSuccessful()){
                         Log.d(TAG, "onComplete: found location!");
-                        currentLocation = (Location) task.getResult();
+                        currentLocation = (android.location.Location) task.getResult();
                         if (currentLocation != null) {
                             moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
                             Toast.makeText(MapsActivity.this, "Current location is " + currentLocation.getLatitude() + ", " + currentLocation.getLongitude(), Toast.LENGTH_SHORT).show();
@@ -351,37 +351,32 @@ public class MapsActivity extends AppCompatActivity implements
         dialog.setCancelable(false);
         dialog.setIndeterminate(false);
         dialog.show();
-
         String apiKey = BuildConfig.MAPS_API_KEY;
         String url = buildUrl(currentLocation.getLatitude(), currentLocation.getLongitude(), apiKey);
         Log.d("finalUrl", url);
-
         GoogleApiService googleApiService = RetrofitBuilder.builder().create(GoogleApiService.class);
-
         Call<NearByResponse> call = googleApiService.getMyNearByPlaces(url);
         call.enqueue(new Callback<NearByResponse>() {
             @Override
             public void onResponse(@NonNull Call<NearByResponse> call, @NonNull Response<NearByResponse> response) {
-                nearByResponse = response.body();
+                NearByResponse nearByResponse = response.body();
                 if (nearByResponse != null) {
-                    List<Results> results = nearByResponse.getResults();
-                    NearbyFacilitiesListFragment nearbyFacilitiesListFragment = NearbyFacilitiesListFragment.newInstance(results);
+                    nearByFacilities = nearByResponse.getResults();
+                    // region set up the bottom sheet once we got List<Results>
+                    NearbyFacilitiesListFragment nearbyFacilitiesListFragment = NearbyFacilitiesListFragment.newInstance(nearByFacilities);
                     nearbyFacilitiesListFragment.setOnItemClickListener(MapsActivity.this::moveCamera);
                     FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                     fragmentTransaction.replace(R.id.fragment_container_view, nearbyFacilitiesListFragment);
                     fragmentTransaction.addToBackStack(null);
                     fragmentTransaction.commit();
                     bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                    Log.d("@nearByResponse", nearByResponse.toString());
-                } else {
-                    Log.d("@nearByResponse", "null");
+                    // endregion
                 }
                 dialog.dismiss();
             }
-
             @Override
             public void onFailure(@NonNull Call<NearByResponse> call, @NonNull Throwable t) {
-                Log.d("@nearByResponse", t.toString());
+                Log.d("@nearByResponse: Got request failed", t.toString());
                 dialog.dismiss();
                 Toast.makeText(MapsActivity.this, "" + t.toString(), Toast.LENGTH_SHORT).show();
             }

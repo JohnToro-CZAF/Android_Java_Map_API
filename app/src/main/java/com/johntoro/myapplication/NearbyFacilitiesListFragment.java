@@ -7,9 +7,9 @@ import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.johntoro.myapplication.databinding.FragmentNearbyFacilitiesListListBinding;
 import com.johntoro.myapplication.databinding.FragmentNearbyFacilitiesListListItemBinding;
+import com.johntoro.myapplication.models.Location;
 import com.johntoro.myapplication.models.Results;
 
 import androidx.fragment.app.Fragment;
@@ -21,18 +21,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import java.util.List;
 
-import javax.xml.transform.Result;
-
-/**
- * <p>A fragment that shows a list of items as a modal bottom sheet.</p>
- * <p>You can show this modal bottom sheet from your activity like this:</p>
- * <pre>
- *     NearbyFacilitiesListFragment.newInstance(30).show(getSupportFragmentManager(), "dialog");
- * </pre>
- */
 public class NearbyFacilitiesListFragment extends Fragment {
 
     protected static final String RESULTS_LIST = "results";
@@ -99,7 +89,8 @@ public class NearbyFacilitiesListFragment extends Fragment {
                     // Locate facility on map
                     Log.d(TAG, "onClick: " + facilityDetails.toString());
                     Log.d(TAG, "onClick: " + facilityDetails.getGeometry().toString());
-                    onItemLocateClickListener.onItemLocateClickListener(facilityDetails.getGeometry().location);
+                    LatLng latLng = facilityDetails.getGeometry().getLocation().getLatLng();
+                    onItemLocateClickListener.onItemLocateClickListener(latLng);
                 }
             });
             holder.facilityDetails.setOnClickListener(new View.OnClickListener() {
