@@ -143,7 +143,8 @@ public class MapsActivity extends AppCompatActivity implements
             initRetrieveFacilities();
         }
     }
-    public void onNormalMap(View view) {
+    // uncomment to add different map views
+    /*public void onNormalMap(View view) {
         gMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
     }
     public void onSatelliteMap(View view) {
@@ -154,7 +155,7 @@ public class MapsActivity extends AppCompatActivity implements
     }
     public void onHybridMap(View view) {
         gMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-    }
+    }*/
     @Override
     public boolean onCreateOptionsMenu(@NonNull Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
