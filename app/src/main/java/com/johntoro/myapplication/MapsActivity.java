@@ -96,6 +96,7 @@ public class MapsActivity extends AppCompatActivity implements
     // endregion
     // vars
     private Boolean mLocationPermissionsGranted = false;
+    private Boolean isNearByFacilities = false;
     // region AutoSuggestionSearchLocation
     private final Handler handler = new Handler();
     private final PlacePredictionAdapter adapter = new PlacePredictionAdapter();
@@ -124,17 +125,17 @@ public class MapsActivity extends AppCompatActivity implements
             gMap.getUiSettings().setMyLocationButtonEnabled(false);
             gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(singapore, DEFAULT_ZOOM));
             gMap.setOnMapClickListener(latLng -> {
-                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                nearByFacilities.clear();
-                removeMarkers();
-                nearByFacilitiesMarkers.clear();
+                if (isNearByFacilities) {
+                    Log.d(TAG, "touch on map and isNearByFacilities is true");
+                    onExitNearByFacilities();
+                }
                 onDropSuggestion(false);
                 hideSoftKeyboard();
             });
         }
     }
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setSupportActionBar(findViewById(R.id.toolbar));
@@ -158,14 +159,14 @@ public class MapsActivity extends AppCompatActivity implements
         }
     }
     @Override
-    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
+    public boolean onCreateOptionsMenu (@NonNull Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
         final SearchView searchView = (SearchView) menu.findItem(R.id.search).getActionView();
         initSearchView(searchView);
         return super.onCreateOptionsMenu(menu);
     }
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+    public boolean onOptionsItemSelected (@NonNull MenuItem item) {
         if (item.getItemId() == R.id.search) {
             sessionToken = AutocompleteSessionToken.newInstance();
             return false;
@@ -173,7 +174,7 @@ public class MapsActivity extends AppCompatActivity implements
         return super.onOptionsItemSelected(item);
     }
 
-    protected void initRecyclerView() {
+    protected void initRecyclerView () {
         final RecyclerView recyclerView = findViewById(R.id.recycler_view);
         final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
@@ -182,21 +183,21 @@ public class MapsActivity extends AppCompatActivity implements
                 .addItemDecoration(new DividerItemDecoration(this, layoutManager.getOrientation()));
         adapter.setPlaceClickListener(this::onClickSuggestionAndMoveCamera);
     }
-    private void initGps() {
+    private void initGps () {
         Log.d(TAG, "init: initializing");
         mGps.setOnClickListener(v -> {
             Log.d(TAG, "onClick: clicked gps icon");
             getDeviceLocation();
         });
     }
-    private void initRetrieveFacilities() {
+    private void initRetrieveFacilities () {
         Log.d(TAG, "init: initializing BUTTON to retrieve facilities");
         mFacilities.setOnClickListener(v -> {
             Log.d(TAG, "onClick: clicked facilities button");
             retrieveFacilitiesFragment();
         });
     }
-    private void initMap() {
+    private void initMap () {
         Log.d(TAG, "initMap: initializing map");
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapView);
@@ -204,7 +205,7 @@ public class MapsActivity extends AppCompatActivity implements
             mapFragment.getMapAsync(this);
         }
     }
-    private void initSearchView(SearchView searchView) {
+    private void initSearchView (SearchView searchView) {
         searchView.setQueryHint(getString(R.string.search_hint));
         searchView.setIconifiedByDefault(false);
         searchView.setFocusable(true);
@@ -232,7 +233,7 @@ public class MapsActivity extends AppCompatActivity implements
             }
         });
     }
-    private void getPlacePredictions(String query) {
+    private void getPlacePredictions (String query) {
         final LocationBias boxBias = RectangularBounds.newInstance(
                 new LatLng(1.290270, 103.851959),
                 new LatLng(1.290270, 103.851959));
@@ -259,7 +260,7 @@ public class MapsActivity extends AppCompatActivity implements
             }
         });
     }
-    public void onClickSuggestionAndMoveCamera(AutocompletePrediction placePrediction) {
+    public void onClickSuggestionAndMoveCamera (AutocompletePrediction placePrediction) {
         // Construct the request URL
         final String apiKey = BuildConfig.MAPS_API_KEY;
         final String url = "https://maps.googleapis.com/maps/api/geocode/json?place_id=%s&key=%s";
@@ -289,7 +290,7 @@ public class MapsActivity extends AppCompatActivity implements
         // Add the request to the Request queue.
         queue.add(request);
     }
-    private void searchLocationByString(String query) {
+    private void searchLocationByString (String query) {
         Log.d(TAG, "searchGeoLocation: searching for location");
         Geocoder geocoder = new Geocoder(MapsActivity.this);
         List<Address> list = new ArrayList<>();
@@ -304,7 +305,7 @@ public class MapsActivity extends AppCompatActivity implements
             moveCamera(new LatLng(address.getLatitude(), address.getLongitude()));
         }
     }
-    private void getDeviceLocation() {
+    private void getDeviceLocation () {
         Log.d(TAG, "getDeviceLocation: getting the devices current location");
         FusedLocationProviderClient mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         try {
@@ -333,7 +334,7 @@ public class MapsActivity extends AppCompatActivity implements
             Log.e(TAG, "getDeviceLocation: SecurityException: " + e.getMessage() );
         }
     }
-    private void moveCamera(LatLng latLng){
+    private void moveCamera (LatLng latLng){
         Log.d(TAG, "moveCamera: moving the camera to: lat: " + latLng.latitude + ", lng: " + latLng.longitude );
         gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
         MarkerOptions options = new MarkerOptions().position(latLng);
@@ -341,7 +342,7 @@ public class MapsActivity extends AppCompatActivity implements
         // Hide the keyboard after searching
         hideSoftKeyboard();
     }
-    private void moveCamera(List<Results> nearByFacilities) {
+    private void moveCamera (List<Results> nearByFacilities) {
         double lat = 0.0;
         double lng = 0.0;
         for (Results facility : nearByFacilities) {
@@ -355,7 +356,7 @@ public class MapsActivity extends AppCompatActivity implements
         lng /= (nearByFacilities.size() + 1);
         gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), DEFAULT_ZOOM));
     }
-    private String buildUrl(double latitude, double longitude, String API_KEY) {
+    private String buildUrl (double latitude, double longitude, String API_KEY) {
         String placeType = "bank";
         return "api/place/nearbysearch/json?" + "location=" +
                 Double.toString(latitude) +
@@ -365,7 +366,8 @@ public class MapsActivity extends AppCompatActivity implements
                 "&types=" + placeType.toLowerCase() +
                 "&key=" + API_KEY;
     }
-    private void retrieveFacilitiesFragment() {
+    private void retrieveFacilitiesFragment () {
+        isNearByFacilities = true;
         final ProgressDialog dialog = new ProgressDialog(this);
         dialog.setMessage("Loading...");
         dialog.setCancelable(false);
@@ -404,7 +406,7 @@ public class MapsActivity extends AppCompatActivity implements
             }
         });
     }
-    private void createMarkers(List<Results> nearByFacilities) {
+    private void createMarkers (List<Results> nearByFacilities) {
         nearByFacilitiesMarkers = new ArrayList<Marker>();
         for (Results facility : nearByFacilities) {
             MarkerOptions markerOptions = new MarkerOptions();
@@ -415,12 +417,13 @@ public class MapsActivity extends AppCompatActivity implements
             nearByFacilitiesMarkers.add(marker);
         }
     }
-    private void removeMarkers() {
+    private void removeMarkers () {
         for (Marker marker : nearByFacilitiesMarkers) {
+            Log.d("removeMarkers", "removeMarkers: " + marker.getTitle());
             marker.remove();
         }
     }
-    private void getLocationPermissionAndInitialize(){
+    private void getLocationPermissionAndInitialize (){
         Log.d(TAG, "getLocationPermission: getting location permissions");
         String[] permissions = {android.Manifest.permission.ACCESS_FINE_LOCATION,
                 android.Manifest.permission.ACCESS_COARSE_LOCATION};
@@ -441,14 +444,22 @@ public class MapsActivity extends AppCompatActivity implements
                     LOCATION_PERMISSION_REQUEST_CODE);
         }
     }
-    private void hideSoftKeyboard(){
+    private void hideSoftKeyboard (){
         View view = this.getCurrentFocus();
         if (view != null) {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
-    private void onDropSuggestion(boolean isDrop) {
+    private void onExitNearByFacilities () {
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        nearByFacilities.clear();
+        removeMarkers();
+        nearByFacilitiesMarkers.clear();
+        moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+        isNearByFacilities = false;
+    }
+    private void onDropSuggestion (boolean isDrop) {
         if (isDrop) {
             this.viewAnimator.setVisibility(View.VISIBLE);
             this.mFacilities.setVisibility(View.GONE);
