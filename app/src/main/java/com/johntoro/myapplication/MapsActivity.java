@@ -27,6 +27,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -48,6 +49,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -110,9 +112,10 @@ public class MapsActivity extends AppCompatActivity implements
     private ProgressBar progressBar;
     private ImageView mGps, mInfo, mPlacePicker;
     private AppCompatButton mHospital, mRestaurent, mPetro, mCarPark;
-    private LinearLayout mFacilitiesLayout;
+    private LinearLayout mFacilitiesLayout, mExitDirections;
     private GoogleMap gMap;
     private Marker currentLocationMarker;
+    private Polyline currentPolyline;
     // endregion
     // vars
     private Boolean mLocationPermissionsGranted = false;
@@ -168,6 +171,7 @@ public class MapsActivity extends AppCompatActivity implements
         }
         placesClient = Places.createClient(this);
         queue = Volley.newRequestQueue(this);
+        mExitDirections = (LinearLayout) findViewById(R.id.exit_direction);
         mGps = (ImageView) findViewById(R.id.ic_my_location);
         mHospital = (AppCompatButton) findViewById(R.id.btn_options_hospital);
         mRestaurent = (AppCompatButton) findViewById(R.id.btn_options_restaurant);
@@ -525,7 +529,23 @@ public class MapsActivity extends AppCompatActivity implements
         plotDirection.execute(url);
         Log.d(TAG, "showDirection got first oops: " + url);
         gMap.setTrafficEnabled(false);
-        moveCamera(currentPosition, 15.0f);
+        moveCamera(currentPosition, 14.0f);
+        // TODO: Add new button to exit the view, deleting the polyline and move camera to current location
+        Button exitDirectionBtn = new Button(this);
+        exitDirectionBtn.setText("Exit Directing");
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        mExitDirections.addView(exitDirectionBtn, lp);
+        exitDirectionBtn.setOnClickListener(v -> {
+            moveCamera(currentPosition);
+            gMap.clear();
+            currentLocationMarker = gMap.addMarker(new MarkerOptions()
+                    .position(currentPosition)
+                    .title("Your Location")
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                    .alpha(1f));
+            currentLocationMarker.showInfoWindow();
+            mExitDirections.removeAllViews();
+        });
     }
     private void startFacilityDetails(Results results) {
         // Attach this method to fragment's onItemDetailsClickListener
@@ -534,13 +554,18 @@ public class MapsActivity extends AppCompatActivity implements
         facilityDetailsLauncher.launch(bundle);
     }
     private void createMarkers (List<Results> nearByFacilities) {
+        MarkerOptions markerOptions = new MarkerOptions().
+                position(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()))
+                .title("Current Location")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+        currentLocationMarker = gMap.addMarker(markerOptions);
         nearByFacilitiesMarkers = new ArrayList<Marker>();
         for (Results facility : nearByFacilities) {
-            MarkerOptions markerOptions = new MarkerOptions();
-            markerOptions.position(facility.getGeometry().getLocation().getLatLng())
+            MarkerOptions option = new MarkerOptions();
+            option.position(facility.getGeometry().getLocation().getLatLng())
                     .title(facility.getName())
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-            Marker marker = gMap.addMarker(markerOptions);
+            Marker marker = gMap.addMarker(option);
             nearByFacilitiesMarkers.add(marker);
         }
     }
@@ -701,7 +726,7 @@ public class MapsActivity extends AppCompatActivity implements
             }
             // Drawing polyline in the Google Map for the i-th route
             if (lineOptions != null) {
-                gMap.addPolyline(lineOptions);
+                currentPolyline = gMap.addPolyline(lineOptions);
             } else {
                 Log.d("onPostExecute", "without Polylines drawn");
             }
