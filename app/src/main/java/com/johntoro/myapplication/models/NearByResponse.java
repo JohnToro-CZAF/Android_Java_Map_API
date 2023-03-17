@@ -1,4 +1,6 @@
 package com.johntoro.myapplication.models;
+import androidx.annotation.NonNull;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
@@ -31,6 +33,7 @@ public class NearByResponse implements Serializable {
         this.status = status;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "ClassPojo [next_page_token, results = " + results + ", html_attributions = " + html_attributions + ", status = " + status + "]";

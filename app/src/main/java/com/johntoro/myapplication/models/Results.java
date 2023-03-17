@@ -1,5 +1,7 @@
 package com.johntoro.myapplication.models;
 
+import androidx.annotation.NonNull;
+
 import java.io.Serializable;
 
 import com.google.gson.annotations.SerializedName;
@@ -114,6 +116,7 @@ public class Results implements Serializable {
         this.geometry = geometry;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "ClassPojo [photos = " + photos + ", id = " + id + ", place_id = " + place_id + ", icon = " + icon + ", vicinity = " + vicinity + ", scope = " + scope + ", name = " + name + ", types = " + types + ", reference = " + reference + ", geometry = " + geometry + "]";

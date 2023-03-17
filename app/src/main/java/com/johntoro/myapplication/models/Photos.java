@@ -1,5 +1,7 @@
 package com.johntoro.myapplication.models;
 
+import androidx.annotation.NonNull;
+
 import java.io.Serializable;
 
 public class Photos implements Serializable {
@@ -44,6 +46,7 @@ public class Photos implements Serializable {
         this.width = width;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "ClassPojo [photo_reference = " + photo_reference + ", height = " + height + ", html_attributions = " + html_attributions + ", width = " + width + "]";

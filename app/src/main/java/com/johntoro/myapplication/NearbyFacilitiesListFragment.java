@@ -1,6 +1,5 @@
 package com.johntoro.myapplication;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,7 +26,6 @@ public class NearbyFacilitiesListFragment extends Fragment {
 
     protected static final String RESULTS_LIST = "results";
     private static final String TAG = NearbyFacilitiesListFragment.class.getSimpleName();
-    private List<Results> results;
     private FragmentNearbyFacilitiesListListBinding binding;
     private OnItemLocateClickListener onItemLocateClickListener;
 
@@ -41,7 +39,7 @@ public class NearbyFacilitiesListFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         binding = FragmentNearbyFacilitiesListListBinding.inflate(inflater, container, false);
         return binding.getRoot();
@@ -51,8 +49,13 @@ public class NearbyFacilitiesListFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         final RecyclerView recyclerView = (RecyclerView) view;
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        List<Results> results = (List<Results>) getArguments().getSerializable(RESULTS_LIST);
-        recyclerView.setAdapter(new ItemAdapter(results));
+        assert getArguments() != null;
+        if (getArguments().getSerializable(RESULTS_LIST) == null) {
+            Log.d(TAG, "onViewCreated: results is null");
+        } else {
+            List<Results> results = (List<Results>) getArguments().getSerializable(RESULTS_LIST);
+            recyclerView.setAdapter(new ItemAdapter(results));
+        }
     }
 
     @Override
@@ -66,9 +69,8 @@ public class NearbyFacilitiesListFragment extends Fragment {
     }
 
     private class ItemAdapter extends RecyclerView.Adapter<ViewHolder> {
-        private List<Results> mResults;
+        private final List<Results> mResults;
         ItemAdapter(List<Results> results) {
-            Log.d(TAG, "ItemAdapter: " + results.get(0).toString());
             this.mResults = results;
         }
 
@@ -84,26 +86,19 @@ public class NearbyFacilitiesListFragment extends Fragment {
             String addressFacility = mResults.get(position).getVicinity();
             holder.facilityName.setText(nameFacility);
             holder.facilityAddress.setText(addressFacility);
-            holder.locateFacility.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // Locate facility on map
-                    Log.d(TAG, "onClick: " + facilityDetails.toString());
-                    Log.d(TAG, "onClick: " + facilityDetails.getGeometry().toString());
-                    LatLng latLng = facilityDetails.getGeometry().getLocation().getLatLng();
-                    onItemLocateClickListener.onItemLocateClickListener(latLng);
-                }
+            holder.locateFacility.setOnClickListener(v -> {
+                // Locate facility on map
+                Log.d(TAG, "onClick: " + facilityDetails.toString());
+                LatLng latLng = facilityDetails.getGeometry().getLocation().getLatLng();
+                onItemLocateClickListener.onItemLocateClickListener(latLng);
             });
-            holder.facilityDetails.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.d(TAG, "onClick: " + facilityDetails.toString());
-                    Intent intent = new Intent(getContext(), FacilityDetailsActivity.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable(FacilityDetailsActivity.FACILITY_DETAILS, (Serializable) facilityDetails);
-                    intent.putExtras(bundle);
-                    startActivity(intent);
-                }
+            holder.facilityDetails.setOnClickListener(v -> {
+                Log.d(TAG, "onClick: " + facilityDetails.toString());
+                Intent intent = new Intent(getContext(), FacilityDetailsActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putSerializable(FacilityDetailsActivity.FACILITY_DETAILS, (Serializable) facilityDetails);
+                intent.putExtras(bundle);
+                startActivity(intent);
             });
         }
         @Override
@@ -112,7 +107,7 @@ public class NearbyFacilitiesListFragment extends Fragment {
         }
     }
 
-    private class ViewHolder extends RecyclerView.ViewHolder {
+    private static class ViewHolder extends RecyclerView.ViewHolder {
         final TextView facilityName, facilityAddress;
         final View facilityDetails, locateFacility;
         ViewHolder(FragmentNearbyFacilitiesListListItemBinding binding) {

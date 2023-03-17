@@ -4,4 +4,5 @@
     <string name="search">SEARCH</string>
     <string name="search_hint">Search a place</string>
     <string name="nearByResponse">nearByResponse </string>
+    <string name="warning_no_opening_hours"> Warning: Open hours is not available </string>
 </resources>

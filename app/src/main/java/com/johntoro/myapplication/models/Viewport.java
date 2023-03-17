@@ -1,5 +1,7 @@
 package com.johntoro.myapplication.models;
 
+import androidx.annotation.NonNull;
+
 import java.io.Serializable;
 
 public class Viewport implements Serializable {
@@ -23,7 +25,7 @@ public class Viewport implements Serializable {
     public void setNortheast(Northeast northeast) {
         this.northeast = northeast;
     }
-
+    @NonNull
     @Override
     public String toString() {
         return "ClassPojo [southwest = " + southwest + ", northeast = " + northeast + "]";

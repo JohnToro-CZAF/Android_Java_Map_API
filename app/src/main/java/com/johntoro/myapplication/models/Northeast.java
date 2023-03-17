@@ -1,5 +1,7 @@
 package com.johntoro.myapplication.models;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
@@ -24,6 +26,7 @@ public class Northeast implements Serializable {
         this.lat = lat;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "ClassPojo [lng = " + lng + ", lat = " + lat + "]";

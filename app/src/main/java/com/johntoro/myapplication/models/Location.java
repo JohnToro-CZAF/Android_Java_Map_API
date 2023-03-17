@@ -1,5 +1,7 @@
 package com.johntoro.myapplication.models;
 
+import androidx.annotation.NonNull;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.annotations.SerializedName;
 
@@ -28,6 +30,8 @@ public class Location implements Serializable {
     public LatLng getLatLng() {
         return new LatLng(Double.parseDouble(lat), Double.parseDouble(lng));
     }
+
+    @NonNull
     @Override
     public String toString() {
         return "ClassPojo [lng = " + lng + ", lat = " + lat + "]";
