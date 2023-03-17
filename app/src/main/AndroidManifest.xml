@@ -31,6 +31,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".MapsActivity" android:parentActivityName=".MainActivity"/>
+        <activity android:name=".FacilityDetailsActivity" android:parentActivityName=".MainActivity"/>
     </application>
 
 </manifest>

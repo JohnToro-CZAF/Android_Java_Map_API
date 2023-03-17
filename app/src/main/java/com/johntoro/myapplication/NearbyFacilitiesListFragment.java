@@ -1,39 +1,40 @@
 package com.johntoro.myapplication;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.annotation.Nullable;
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.maps.model.LatLng;
-import com.johntoro.myapplication.databinding.FragmentNearbyFacilitiesListListBinding;
-import com.johntoro.myapplication.databinding.FragmentNearbyFacilitiesListListItemBinding;
-import com.johntoro.myapplication.models.Location;
-import com.johntoro.myapplication.models.Results;
-
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.gms.maps.model.LatLng;
+import com.johntoro.myapplication.databinding.FragmentNearbyFacilitiesListListBinding;
+import com.johntoro.myapplication.databinding.FragmentNearbyFacilitiesListListItemBinding;
+import com.johntoro.myapplication.models.Results;
+
+import java.io.Serializable;
 import java.util.List;
 
 public class NearbyFacilitiesListFragment extends Fragment {
 
     protected static final String RESULTS_LIST = "results";
-    private final String TAG = this.getClass().getSimpleName();
+    private static final String TAG = NearbyFacilitiesListFragment.class.getSimpleName();
+    private List<Results> results;
     private FragmentNearbyFacilitiesListListBinding binding;
     private OnItemLocateClickListener onItemLocateClickListener;
 
     public static NearbyFacilitiesListFragment newInstance(List<Results> results) {
         final NearbyFacilitiesListFragment fragment = new NearbyFacilitiesListFragment();
         final Bundle args = new Bundle();
-        args.putSerializable("results", (java.io.Serializable) results);
+        args.putSerializable("results", (Serializable) results);
         fragment.setArguments(args);
         return fragment;
     }
@@ -65,7 +66,7 @@ public class NearbyFacilitiesListFragment extends Fragment {
     }
 
     private class ItemAdapter extends RecyclerView.Adapter<ViewHolder> {
-        private final List<Results> mResults;
+        private List<Results> mResults;
         ItemAdapter(List<Results> results) {
             Log.d(TAG, "ItemAdapter: " + results.get(0).toString());
             this.mResults = results;
@@ -96,10 +97,10 @@ public class NearbyFacilitiesListFragment extends Fragment {
             holder.facilityDetails.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d(TAG, "onClick: " + nameFacility);
+                    Log.d(TAG, "onClick: " + facilityDetails.toString());
                     Intent intent = new Intent(getContext(), FacilityDetailsActivity.class);
                     Bundle bundle = new Bundle();
-                    bundle.putSerializable("facilityDetails", facilityDetails);
+                    bundle.putSerializable(FacilityDetailsActivity.FACILITY_DETAILS, (Serializable) facilityDetails);
                     intent.putExtras(bundle);
                     startActivity(intent);
                 }

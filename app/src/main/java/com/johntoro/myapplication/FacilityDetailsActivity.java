@@ -16,6 +16,8 @@ import com.johntoro.myapplication.models.Results;
 import com.squareup.picasso.Picasso;
 
 public class FacilityDetailsActivity extends AppCompatActivity {
+    private static final String TAG = FacilityDetailsActivity.class.getName();
+    public static final String FACILITY_DETAILS = "facility_details";
     private ImageView facilityImage;
     private Photos photos;
     private TextView facilityName, facilityRating, facilityAddress, facilityAvailability;
@@ -30,7 +32,12 @@ public class FacilityDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_facility_detail);
         Bundle bundle = getIntent().getExtras();
-        results = (Results) bundle.getSerializable("results");
+        results = (Results) bundle.getSerializable(FACILITY_DETAILS);
+        if (results == null) {
+            Log.d(TAG, "onCreate: results is null");
+        } else {
+            Log.d(TAG, "onCreate: " + results.toString());
+        }
         linearLayoutRating = findViewById(R.id.linearLayoutRating);
         facilityName = findViewById(R.id.textViewName);
         facilityRating = findViewById(R.id.textViewRating);
