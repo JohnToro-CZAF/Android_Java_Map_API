@@ -3,4 +3,5 @@
     <string name="title_activity_maps">MapsActivity</string>
     <string name="search">SEARCH</string>
     <string name="search_hint">Search a place</string>
+    <string name="app_compat_button">Click me</string>
 </resources>
