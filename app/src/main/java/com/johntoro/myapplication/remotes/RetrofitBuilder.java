@@ -5,9 +5,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitBuilder {
     private static Retrofit retrofit = null;
-
     private static final String BASE_URL = "https://maps.googleapis.com/maps/";
-
     public static Retrofit builder() {
         if (retrofit == null) {
             retrofit = new Retrofit.Builder()

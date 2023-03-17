@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -23,7 +24,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -58,12 +58,19 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.johntoro.myapplication.adapters.LatLngAdapter;
 import com.johntoro.myapplication.models.GeocodingResult;
+import com.johntoro.myapplication.models.NearByResponse;
+import com.johntoro.myapplication.models.Results;
+import com.johntoro.myapplication.remotes.GoogleApiService;
+import com.johntoro.myapplication.remotes.RetrofitBuilder;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.List;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MapsActivity extends AppCompatActivity implements
         OnMapReadyCallback
@@ -96,6 +103,7 @@ public class MapsActivity extends AppCompatActivity implements
     private AutocompleteSessionToken sessionToken;
     // endregion
     private Location currentLocation;
+    private NearByResponse nearByResponse;
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
@@ -327,13 +335,57 @@ public class MapsActivity extends AppCompatActivity implements
         // Hide the keyboard after searching
         hideSoftKeyboard();
     }
+    private String buildUrl(double latitude, double longitude, String API_KEY) {
+        String placeType = "bank";
+        return "api/place/nearbysearch/json?" + "location=" +
+                Double.toString(latitude) +
+                "," +
+                Double.toString(longitude) +
+                "&radius=5000" + // places between 5 kilometer
+                "&types=" + placeType.toLowerCase() +
+                "&key=" + API_KEY;
+    }
     private void retrieveFacilitiesFragment() {
-        NearbyFacilitiesListFragment nearbyFacilitiesListFragment = NearbyFacilitiesListFragment.newInstance(5);
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.fragment_container_view, nearbyFacilitiesListFragment);
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
-        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        final ProgressDialog dialog = new ProgressDialog(this);
+        dialog.setMessage("Loading...");
+        dialog.setCancelable(false);
+        dialog.setIndeterminate(false);
+        dialog.show();
+
+        String apiKey = BuildConfig.MAPS_API_KEY;
+        String url = buildUrl(currentLocation.getLatitude(), currentLocation.getLongitude(), apiKey);
+        Log.d("finalUrl", url);
+
+        GoogleApiService googleApiService = RetrofitBuilder.builder().create(GoogleApiService.class);
+
+        Call<NearByResponse> call = googleApiService.getMyNearByPlaces(url);
+        call.enqueue(new Callback<NearByResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<NearByResponse> call, @NonNull Response<NearByResponse> response) {
+                nearByResponse = response.body();
+                if (nearByResponse != null) {
+                    List<Results> results = nearByResponse.getResults();
+                    NearbyFacilitiesListFragment nearbyFacilitiesListFragment = NearbyFacilitiesListFragment.newInstance(results);
+                    nearbyFacilitiesListFragment.setOnItemClickListener(MapsActivity.this::moveCamera);
+                    FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                    fragmentTransaction.replace(R.id.fragment_container_view, nearbyFacilitiesListFragment);
+                    fragmentTransaction.addToBackStack(null);
+                    fragmentTransaction.commit();
+                    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                    Log.d("@nearByResponse", nearByResponse.toString());
+                } else {
+                    Log.d("@nearByResponse", "null");
+                }
+                dialog.dismiss();
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<NearByResponse> call, @NonNull Throwable t) {
+                Log.d("@nearByResponse", t.toString());
+                dialog.dismiss();
+                Toast.makeText(MapsActivity.this, "" + t.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
     private void getLocationPermissionAndInitialize(){
         Log.d(TAG, "getLocationPermission: getting location permissions");

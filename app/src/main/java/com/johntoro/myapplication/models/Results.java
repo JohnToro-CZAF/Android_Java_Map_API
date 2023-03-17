@@ -1,10 +1,10 @@
 package com.johntoro.myapplication.models;
 
 import java.io.Serializable;
-import com.google.gson.annotations.Expose;
+
 import com.google.gson.annotations.SerializedName;
 
-public class FacilityResults implements Serializable {
+public class Results implements Serializable {
     private Photos[] photos;
 
     private String id;
