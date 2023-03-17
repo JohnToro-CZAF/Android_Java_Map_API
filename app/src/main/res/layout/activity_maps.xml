@@ -69,7 +69,8 @@
                 map:uiScrollGestures="true"
                 map:uiTiltGestures="true"
                 map:uiZoomControls="true"
-                map:uiZoomGestures="true"/>
+                map:uiZoomGestures="true"
+                tools:layout="@layout/activity_maps" />
         </RelativeLayout>
         <androidx.appcompat.widget.AppCompatButton
             android:layout_width="40dp"
@@ -91,5 +92,37 @@
             android:scaleType="center"/>
 
     </RelativeLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onNormalMap"
+                android:text="Normal" />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onSatelliteMap"
+                android:text="Satellite" />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onTerrainMap"
+                android:text="Terrain" />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onHybridMap"
+                android:text="Hybrid" />
+        </LinearLayout>
+    </LinearLayout>
     <include layout="@layout/bottom_sheet"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
