@@ -1,5 +1,7 @@
 package com.johntoro.myapplication.models;
 
+import androidx.annotation.NonNull;
+
 import com.google.android.gms.maps.model.LatLng;
 import java.io.Serializable;
 
@@ -13,6 +15,7 @@ public class Bounds implements Serializable {
     public LatLng southwest;
 
     @Override
+    @NonNull
     public String toString() {
         return String.format("[%s, %s]", northeast, southwest);
     }

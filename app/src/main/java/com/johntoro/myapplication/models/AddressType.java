@@ -1,5 +1,7 @@
 package com.johntoro.myapplication.models;
 
+import androidx.annotation.NonNull;
+
 public enum AddressType {
 
     /** A precise street address. */
@@ -449,6 +451,7 @@ public enum AddressType {
         this.addressType = addressType;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return addressType;

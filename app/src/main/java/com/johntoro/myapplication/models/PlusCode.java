@@ -14,6 +14,8 @@
 
 package com.johntoro.myapplication.models;
 
+import androidx.annotation.NonNull;
+
 import java.io.Serializable;
 
 /** A Plus Code encoded location reference. */
@@ -27,6 +29,7 @@ public class PlusCode implements Serializable {
   /** The compound Plus Code identifier. May be null for locations in remote areas. */
   public String compoundCode;
 
+  @NonNull
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder("[PlusCode: ");
