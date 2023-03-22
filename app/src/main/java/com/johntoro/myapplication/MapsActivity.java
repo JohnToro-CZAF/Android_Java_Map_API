@@ -27,12 +27,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.SearchView;
+import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.ViewAnimator;
 
@@ -466,6 +468,11 @@ public class MapsActivity extends AppCompatActivity implements
                     NearbyFacilitiesListFragment nearbyFacilitiesListFragment = NearbyFacilitiesListFragment.newInstance(nearByFacilities);
                     nearbyFacilitiesListFragment.setOnItemClickListener(MapsActivity.this::moveCamera);
                     nearbyFacilitiesListFragment.setOnItemDetailsClickListener(MapsActivity.this::startFacilityDetails);
+
+
+                    FilterFragment filterFragment = FilterFragment.newInstance();
+                    //FilterFragment.setOnItemFilterClickListener(MapsActivity.this::startFacilityDetails);
+
                     FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                     fragmentTransaction.replace(R.id.fragment_container_view, nearbyFacilitiesListFragment);
                     fragmentTransaction.addToBackStack(null);
