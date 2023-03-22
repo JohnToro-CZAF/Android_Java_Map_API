@@ -97,11 +97,6 @@ public class NearbyFacilitiesListFragment extends Fragment {
             });
             holder.facilityDetails.setOnClickListener(v -> {
                 Log.d(TAG, "onClick: " + facilityDetails.toString());
-//                Intent intent = new Intent(getContext(), FacilityDetailsActivity.class);
-//                Bundle bundle = new Bundle();
-//                bundle.putSerializable(FacilityDetailsActivity.FACILITY_DETAILS, (Serializable) facilityDetails);
-//                intent.putExtras(bundle);
-//                startActivity(intent);
                 onItemDetailsClickListener.onItemDetailsClickListener(facilityDetails);
             });
         }

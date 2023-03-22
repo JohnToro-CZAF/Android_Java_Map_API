@@ -36,9 +36,7 @@ import android.widget.SearchView;
 import android.widget.Toast;
 import android.widget.ViewAnimator;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -58,15 +56,17 @@ import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.AutocompletePrediction;
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
 import com.google.android.libraries.places.api.model.LocationBias;
+import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.api.model.TypeFilter;
+import com.google.android.libraries.places.api.net.FetchPlaceRequest;
+import com.google.android.libraries.places.api.net.FetchPlaceResponse;
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.johntoro.myapplication.adapters.LatLngAdapter;
-import com.johntoro.myapplication.models.GeocodingResult;
 import com.johntoro.myapplication.models.NearByResponse;
 import com.johntoro.myapplication.models.Results;
 import com.johntoro.myapplication.remotes.DirectionsJSONParser;
@@ -78,8 +78,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContract;
 import com.google.maps.android.SphericalUtil;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -89,6 +87,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import retrofit2.Call;
@@ -98,23 +97,24 @@ import retrofit2.Response;
 public class MapsActivity extends AppCompatActivity implements
         OnMapReadyCallback
 {
-    //region Final Variables
+    // region Final Variables
     private static final String TAG = "MapActivity";
     private static final String FINE_LOCATION = android.Manifest.permission.ACCESS_FINE_LOCATION;
     private static final String COARSE_LOCATION = android.Manifest.permission.ACCESS_COARSE_LOCATION;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
     private static final float DEFAULT_ZOOM = 15f;
-    //endregion
+    // endregion
     // region widgets
     private ViewAnimator viewAnimator;
     private BottomSheetBehavior bottomSheetBehavior;
     private RelativeLayout bottomSheet;
     private ProgressBar progressBar;
-    private ImageView mGps, mInfo, mPlacePicker;
+    private ImageView mGps;
     private AppCompatButton mHospital, mRestaurent, mPetro, mCarPark;
     private LinearLayout mFacilitiesLayout, mExitDirections;
     private GoogleMap gMap;
     private Marker currentLocationMarker;
+    private Marker searchedLocationMarker;
     private Polyline currentPolyline;
     // endregion
     // vars
@@ -294,10 +294,10 @@ public class MapsActivity extends AppCompatActivity implements
         final FindAutocompletePredictionsRequest newRequest = FindAutocompletePredictionsRequest
                 .builder()
                 .setSessionToken(sessionToken)
+                .setCountry("SG")
                 .setLocationBias(boxBias)
                 .setTypeFilter(TypeFilter.ESTABLISHMENT)
                 .setQuery(query)
-                .setCountries("IN")
                 .build();
 
         // Perform autocomplete predictions request
@@ -318,31 +318,27 @@ public class MapsActivity extends AppCompatActivity implements
         // Construct the request URL
         final String apiKey = BuildConfig.MAPS_API_KEY;
         final String url = "https://maps.googleapis.com/maps/api/geocode/json?place_id=%s&key=%s";
-        final String requestURL = String.format(url, placePrediction.getPlaceId(), apiKey);
-
-        // Use the HTTP request URL for Geocoding API to get geographic coordinates for the place
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, requestURL, null,
-                response -> {
-                    try {
-                        // Inspect the value of "results" and make sure it's not empty
-                        JSONArray results = response.getJSONArray("results");
-                        if (results.length() == 0) {
-                            Log.w(TAG, "No results from geocoding request.");
-                            return;
-                        }
-                        // Use Gson to convert the response JSON object to a POJO
-                        GeocodingResult result = gson.fromJson(
-                                results.getString(0), GeocodingResult.class);
-                        LatLng latLng = result.geometry.getLocation().getLatLng();
-                        moveCamera(latLng);
-                        onDropSuggestion(false);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }, error -> Log.e(TAG, "Request failed"));
-
-        // Add the request to the Request queue.
-        queue.add(request);
+        final String placeId = placePrediction.getPlaceId();
+        final String requestURL = String.format(url, placeId, apiKey);
+        List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
+        // Construct a request object, passing the place ID and fields array.
+        final FetchPlaceRequest request = FetchPlaceRequest.newInstance(placeId, placeFields);
+        Task<FetchPlaceResponse> fetchPlaceTask = placesClient.fetchPlace(request);
+        fetchPlaceTask.addOnSuccessListener((response) -> {
+            Place place = response.getPlace();
+            LatLng searchedLatLng = place.getLatLng();
+            Log.d(TAG, "seached string: " + searchedLatLng.toString());
+            searchedLocation = new android.location.Location("");
+            searchedLocation.setLatitude(searchedLatLng.latitude);
+            searchedLocation.setLongitude(searchedLatLng.longitude);
+            moveCamera(searchedLatLng);
+            Log.i(TAG, "Place found: " + place.getName());
+        }).addOnFailureListener((exception) -> {
+            if (exception instanceof ApiException) {
+                ApiException apiException = (ApiException) exception;
+                Log.e(TAG, "Place not found: " + apiException.getStatusCode());
+            }
+        });
     }
     private void searchLocationByString (String query) {
         Log.d(TAG, "searchGeoLocation: searching for location");
@@ -356,31 +352,24 @@ public class MapsActivity extends AppCompatActivity implements
         if (list.size() > 0) {
             Address address = list.get(0);
             Log.d(TAG, "searchGeoLocation: found a location: " + address.toString());
+            searchedLocation = new android.location.Location(String.valueOf(address));
             moveCamera(new LatLng(address.getLatitude(), address.getLongitude()));
         }
     }
+    @SuppressLint("MissingPermission")
     private void getDeviceLocation () {
         Log.d(TAG, "getDeviceLocation: getting the devices current location");
         FusedLocationProviderClient mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         try {
             if (mLocationPermissionsGranted) {
-                @SuppressLint("MissingPermission") Task<android.location.Location> location = mFusedLocationProviderClient.getLastLocation();
-                location.addOnCompleteListener(task -> {
-                    if (task.isSuccessful()){
+                mFusedLocationProviderClient.getLastLocation().addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
                         Log.d(TAG, "onComplete: found location!");
-                        currentLocation = (android.location.Location) task.getResult();
-                        if (currentLocation != null) {
-                            moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
-                            Toast.makeText(MapsActivity.this, "Current location is " + currentLocation.getLatitude() + ", " + currentLocation.getLongitude(), Toast.LENGTH_SHORT).show();
-                        } else {
-                            Log.d(TAG, "task is successful but current location is null");
-                            // If the current location is null, then move the camera to the default location
-                            Toast.makeText(MapsActivity.this, "unable to get current location (due to the internal app error)", Toast.LENGTH_SHORT).show();
-                        }
-                    }else{
+                        currentLocation = task.getResult();
+                        moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+                    } else {
                         Log.d(TAG, "onComplete: current location is null");
-                        // If the current location is null, then move the camera to the default location
-                        Toast.makeText(MapsActivity.this, "unble to get current location", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "unable to get current location", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -428,6 +417,7 @@ public class MapsActivity extends AppCompatActivity implements
                 "&types=" + facilityType.toLowerCase() +
                 "&key=" + API_KEY;
     }
+
     private void retrieveFacilitiesFragment (String facilityType) {
         isNearByFacilities = true;
         final ProgressDialog dialog = new ProgressDialog(this);
@@ -436,7 +426,14 @@ public class MapsActivity extends AppCompatActivity implements
         dialog.setIndeterminate(false);
         dialog.show();
         String apiKey = BuildConfig.MAPS_API_KEY;
-        String url = buildUrl(currentLocation.getLatitude(), currentLocation.getLongitude(), apiKey, facilityType);
+        if (searchedLocation == null) {
+            searchedLocation = currentLocation;
+            Log.d("searchedLocation NO", searchedLocation.toString());
+        } else {
+            Log.d("searchedLocation YES", searchedLocation.toString());
+        }
+        Log.d("searchedLocation", searchedLocation.toString());
+        String url = buildUrl(searchedLocation.getLatitude(), searchedLocation.getLongitude(), apiKey, facilityType);
         Log.d("finalUrl", url);
         GoogleApiService googleApiService = RetrofitBuilder.builder().create(GoogleApiService.class);
         Call<NearByResponse> call = googleApiService.getMyNearByPlaces(url);
@@ -554,11 +551,14 @@ public class MapsActivity extends AppCompatActivity implements
         facilityDetailsLauncher.launch(bundle);
     }
     private void createMarkers (List<Results> nearByFacilities) {
+        if (searchedLocation == null) {
+            searchedLocation = currentLocation;
+        }
         MarkerOptions markerOptions = new MarkerOptions().
-                position(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()))
+                position(new LatLng(searchedLocation.getLatitude(), searchedLocation.getLongitude()))
                 .title("Current Location")
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-        currentLocationMarker = gMap.addMarker(markerOptions);
+        searchedLocationMarker = gMap.addMarker(markerOptions);
         nearByFacilitiesMarkers = new ArrayList<Marker>();
         for (Results facility : nearByFacilities) {
             MarkerOptions option = new MarkerOptions();
@@ -572,8 +572,11 @@ public class MapsActivity extends AppCompatActivity implements
     private void removeMarkers () {
         // TODO: remove all needed markers instead of by marker.remove() but this method
         // TODO: is not working
+        if (searchedLocation == null) {
+            searchedLocation = currentLocation;
+        }
         gMap.clear();
-        LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+        LatLng latLng = new LatLng(searchedLocation.getLatitude(), searchedLocation.getLongitude());
         gMap.addMarker(new MarkerOptions().position(latLng).title("Current Location"));
     }
     private void getLocationPermissionAndInitialize (){
