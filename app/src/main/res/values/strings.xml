@@ -6,4 +6,8 @@
     <string name="nearByResponse">nearByResponse </string>
     <string name="warning_no_opening_hours"> Warning: Open hours is not available </string>
     <string name="filter_fragment">Filter</string>
+    <string-array name="filter_array">
+        <item>Ratings</item>
+        <item>Opening Hours</item>
+    </string-array>
 </resources>
