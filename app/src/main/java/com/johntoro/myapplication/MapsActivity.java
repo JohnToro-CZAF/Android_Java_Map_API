@@ -470,8 +470,11 @@ public class MapsActivity extends AppCompatActivity implements
                     nearbyFacilitiesListFragment.setOnItemDetailsClickListener(MapsActivity.this::startFacilityDetails);
 
 
-                    FilterFragment filterFragment = FilterFragment.newInstance();
-                    //FilterFragment.setOnItemFilterClickListener(MapsActivity.this::startFacilityDetails);
+                    FilterFragment filterFragment = FilterFragment.newInstance(nearByFacilities);
+                    filterFragment.retrieveFacilitiesFragment( );
+
+
+
 
                     FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                     fragmentTransaction.replace(R.id.fragment_container_view, nearbyFacilitiesListFragment);

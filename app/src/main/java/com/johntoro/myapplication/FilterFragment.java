@@ -9,7 +9,14 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
+import com.johntoro.myapplication.models.FilterControl;
 import com.johntoro.myapplication.models.Results;
+
+import java.io.Serializable;
+import java.sql.Array;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -39,9 +46,10 @@ public class FilterFragment extends Fragment {
      * @return A new instance of fragment FilterFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static FilterFragment newInstance() {
+    public static FilterFragment newInstance(List<Results> res) {
         FilterFragment fragment = new FilterFragment();
         Bundle args = new Bundle();
+        args.putSerializable("res", (Serializable) res);
         fragment.setArguments(args);
         return fragment;
     }
@@ -66,15 +74,21 @@ public class FilterFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_filter, container, false);
         spinner = (Spinner) rootView.findViewById(R.id.filter_spinner);
-// Create an ArrayAdapter using the string array and a default spinner layout
+        // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
                 R.array.filter_array, android.R.layout.simple_spinner_item);
-// Specify the layout to use when the list of choices appears
+        // Specify the layout to use when the list of choices appears
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-// Apply the adapter to the spinner
+        // Apply the adapter to the spinner
         spinner.setAdapter(adapter);
 
         return rootView;
+    }
+    public void retrieveFacilitiesFragment(List<Results> res){
+        FilterControl fc = new FilterControl();
+        List<Results> rescopy = new ArrayList<>(res);
+        fc.sort(rescopy);
+
     }
     public void setOnItemFilterClickListener(OnItemFilterClickListener listener) {
         this.onItemFilterClickListener = listener;
