@@ -134,7 +134,15 @@
             android:src="@drawable/ic_my_location"
             android:id="@+id/ic_my_location"
             android:scaleType="center"/>
-
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="160dp"
+            android:layout_marginEnd="10dp"
+            android:layout_alignParentEnd="true"
+            android:src="@drawable/ic_fav"
+            android:id="@+id/ic_my_fav"
+            android:scaleType="center"/>
     </RelativeLayout>
     <include layout="@layout/bottom_sheet"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -31,6 +31,7 @@ public class NearbyFacilitiesListFragment extends Fragment {
     private OnItemLocateClickListener onItemLocateClickListener;
     private OnItemDetailsClickListener onItemDetailsClickListener;
     private OnItemFavoriteClickListener onItemFavoriteClickListener;
+    private IsItemFavorite isItemFavorite;
 
     public static NearbyFacilitiesListFragment newInstance(List<Results> results) {
         final NearbyFacilitiesListFragment fragment = new NearbyFacilitiesListFragment();
@@ -77,6 +78,10 @@ public class NearbyFacilitiesListFragment extends Fragment {
         this.onItemFavoriteClickListener = listener;
     }
 
+    public void setIsItemFavorite(IsItemFavorite listener) {
+        this.isItemFavorite = listener;
+    }
+
     private class ItemAdapter extends RecyclerView.Adapter<ViewHolder> {
         private final List<Results> mResults;
         ItemAdapter(List<Results> results) {
@@ -105,6 +110,7 @@ public class NearbyFacilitiesListFragment extends Fragment {
                 Log.d(TAG, "onClick: " + facilityDetails.toString());
                 onItemDetailsClickListener.onItemDetailsClickListener(facilityDetails);
             });
+            holder.favoriteBtn.setFavorite(isItemFavorite.isItemFavorite(facilityDetails));
             holder.favoriteBtn.setOnFavoriteChangeListener((MaterialFavoriteButton buttonView, boolean favorite) -> {
                 onItemFavoriteClickListener.onItemFavouriteClickListener(facilityDetails, favorite);
             });
@@ -136,5 +142,8 @@ public class NearbyFacilitiesListFragment extends Fragment {
     }
     interface OnItemFavoriteClickListener {
         void onItemFavouriteClickListener(Results facilityDetails, boolean isFavourite);
+    }
+    interface  IsItemFavorite {
+        boolean isItemFavorite(Results facilityDetails);
     }
 }

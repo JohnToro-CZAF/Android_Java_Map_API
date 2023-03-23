@@ -36,8 +36,6 @@ import android.widget.SearchView;
 import android.widget.Toast;
 import android.widget.ViewAnimator;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -64,9 +62,6 @@ import com.google.android.libraries.places.api.net.FetchPlaceResponse;
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.johntoro.myapplication.adapters.LatLngAdapter;
 import com.johntoro.myapplication.models.NearByResponse;
 import com.johntoro.myapplication.models.Results;
 import com.johntoro.myapplication.remotes.DirectionsJSONParser;
@@ -112,7 +107,7 @@ public class MapsActivity extends AppCompatActivity implements
     private BottomSheetBehavior bottomSheetBehavior;
     private RelativeLayout bottomSheet;
     private ProgressBar progressBar;
-    private ImageView mGps;
+    private ImageView mGps,mFavorite;
     private AppCompatButton mHospital, mRestaurent, mPetro, mCarPark;
     private LinearLayout mFacilitiesLayout, mExitDirections;
     private GoogleMap gMap;
@@ -122,20 +117,16 @@ public class MapsActivity extends AppCompatActivity implements
     // endregion
     // vars
     private Boolean mLocationPermissionsGranted = false;
-    private Boolean isNearByFacilities = false;
+    private Boolean isNearByFacilitiesListFragmentRetrieved = false;
     // region AutoSuggestionSearchLocation
     private final Handler handler = new Handler();
     private final PlacePredictionAdapter adapter = new PlacePredictionAdapter();
-    private final Gson gson = new GsonBuilder().registerTypeAdapter(LatLng.class, new LatLngAdapter()).create();
-    private RequestQueue queue;
     private PlacesClient placesClient;
     private AutocompleteSessionToken sessionToken;
     // endregion
     private android.location.Location currentLocation;
-    // TODO: SearchedLocation
     private android.location.Location searchedLocation;
     private List<Results> nearByFacilities;
-    private List<Marker> nearByFacilitiesMarkers;
     private Set<Results> favourites = new HashSet<Results>();
 
     @Override
@@ -154,7 +145,7 @@ public class MapsActivity extends AppCompatActivity implements
             gMap.getUiSettings().setMyLocationButtonEnabled(false);
             gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(singapore, DEFAULT_ZOOM));
             gMap.setOnMapClickListener(latLng -> {
-                if (isNearByFacilities) {
+                if (isNearByFacilitiesListFragmentRetrieved) {
                     onExitNearByFacilities();
                 }
                 onDropSuggestion(false);
@@ -167,27 +158,28 @@ public class MapsActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setSupportActionBar(findViewById(R.id.toolbar));
-        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
-        viewAnimator = (ViewAnimator) findViewById(R.id.view_animator);
+        progressBar = findViewById(R.id.progress_bar);
+        viewAnimator = findViewById(R.id.view_animator);
         if (!Places.isInitialized()) {
             Places.initialize(getApplicationContext(), BuildConfig.MAPS_API_KEY);
         }
         placesClient = Places.createClient(this);
-        queue = Volley.newRequestQueue(this);
-        mExitDirections = (LinearLayout) findViewById(R.id.exit_direction);
-        mGps = (ImageView) findViewById(R.id.ic_my_location);
-        mHospital = (AppCompatButton) findViewById(R.id.btn_options_hospital);
-        mRestaurent = (AppCompatButton) findViewById(R.id.btn_options_restaurant);
-        mCarPark = (AppCompatButton) findViewById(R.id.btn_options_carpark);
-        mPetro = (AppCompatButton) findViewById(R.id.btn_options_petro_station);
-        mFacilitiesLayout = (LinearLayout) findViewById(R.id.facilities_buttons_layout);
-        bottomSheet = (RelativeLayout) findViewById(R.id.bottom_sheet);
+        mExitDirections = findViewById(R.id.exit_direction);
+        mGps = findViewById(R.id.ic_my_location);
+        mFavorite = findViewById(R.id.ic_my_fav);
+        mHospital = findViewById(R.id.btn_options_hospital);
+        mRestaurent = findViewById(R.id.btn_options_restaurant);
+        mCarPark = findViewById(R.id.btn_options_carpark);
+        mPetro = findViewById(R.id.btn_options_petro_station);
+        mFacilitiesLayout = findViewById(R.id.facilities_buttons_layout);
+        bottomSheet = findViewById(R.id.bottom_sheet);
         bottomSheetBehavior=BottomSheetBehavior.from(bottomSheet);
         initRecyclerView();
         getLocationPermissionAndInitialize();
         if (mLocationPermissionsGranted) {
             initMap();
             initGps();
+            initFavorite();
             initRetrieveFacilities();
         }
     }
@@ -206,7 +198,12 @@ public class MapsActivity extends AppCompatActivity implements
         }
         return super.onOptionsItemSelected(item);
     }
-
+    private void initFavorite () {
+        mFavorite.setOnClickListener(v -> {
+            List<Results> favouritesList = new ArrayList<>(favourites);
+            getNearByFacilitiesListFragment(favouritesList);
+        });
+    }
     protected void initRecyclerView () {
         final RecyclerView recyclerView = findViewById(R.id.recycler_view);
         final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -227,28 +224,28 @@ public class MapsActivity extends AppCompatActivity implements
         Log.d(TAG, "init: initializing BUTTON to retrieve facilities");
         mPetro.setOnClickListener(v -> {
             Log.d(TAG, "onClick: clicked petro station button");
-            if (isNearByFacilities) {
+            if (isNearByFacilitiesListFragmentRetrieved) {
                 onExitNearByFacilities();
             }
             retrieveFacilitiesFragment("petro station");
         });
         mHospital.setOnClickListener(v -> {
             Log.d(TAG, "onClick: clicked hospital button");
-            if (isNearByFacilities) {
+            if (isNearByFacilitiesListFragmentRetrieved) {
                 onExitNearByFacilities();
             }
             retrieveFacilitiesFragment("hospital");
         });
         mRestaurent.setOnClickListener(v -> {
             Log.d(TAG, "onClick: clicked restaurant button");
-            if (isNearByFacilities) {
+            if (isNearByFacilitiesListFragmentRetrieved) {
                 onExitNearByFacilities();
             }
             retrieveFacilitiesFragment("restaurant");
         });
         mCarPark.setOnClickListener(v -> {
             Log.d(TAG, "onClick: clicked car park button");
-            if (isNearByFacilities) {
+            if (isNearByFacilitiesListFragmentRetrieved) {
                 onExitNearByFacilities();
             }
             retrieveFacilitiesFragment("car park");
@@ -330,12 +327,11 @@ public class MapsActivity extends AppCompatActivity implements
         fetchPlaceTask.addOnSuccessListener((response) -> {
             Place place = response.getPlace();
             LatLng searchedLatLng = place.getLatLng();
-            Log.d(TAG, "seached string: " + searchedLatLng.toString());
+            assert searchedLatLng != null;
             searchedLocation = new android.location.Location("");
             searchedLocation.setLatitude(searchedLatLng.latitude);
             searchedLocation.setLongitude(searchedLatLng.longitude);
             moveCamera(searchedLatLng);
-            Log.i(TAG, "Place found: " + place.getName());
         }).addOnFailureListener((exception) -> {
             if (exception instanceof ApiException) {
                 ApiException apiException = (ApiException) exception;
@@ -422,7 +418,6 @@ public class MapsActivity extends AppCompatActivity implements
     }
 
     private void retrieveFacilitiesFragment (String facilityType) {
-        isNearByFacilities = true;
         final ProgressDialog dialog = new ProgressDialog(this);
         dialog.setMessage("Loading...");
         dialog.setCancelable(false);
@@ -442,19 +437,7 @@ public class MapsActivity extends AppCompatActivity implements
                 NearByResponse nearByResponse = response.body();
                 if (nearByResponse != null) {
                     nearByFacilities = nearByResponse.getResults();
-                    // region set up the bottom sheet once we got List<Results>
-                    createMarkers(nearByFacilities);
-                    moveCamera(nearByFacilities);
-                    NearbyFacilitiesListFragment nearbyFacilitiesListFragment = NearbyFacilitiesListFragment.newInstance(nearByFacilities);
-                    nearbyFacilitiesListFragment.setOnItemClickListener(MapsActivity.this::moveCamera);
-                    nearbyFacilitiesListFragment.setOnItemFavoriteClickListener(MapsActivity.this::changeFavorite);
-                    nearbyFacilitiesListFragment.setOnItemDetailsClickListener(MapsActivity.this::startFacilityDetails);
-                    FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                    fragmentTransaction.replace(R.id.fragment_container_view, nearbyFacilitiesListFragment);
-                    fragmentTransaction.addToBackStack(null);
-                    fragmentTransaction.commit();
-                    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                    // endregion
+                    getNearByFacilitiesListFragment(nearByFacilities);
                 }
                 dialog.dismiss();
             }
@@ -465,6 +448,21 @@ public class MapsActivity extends AppCompatActivity implements
                 Toast.makeText(MapsActivity.this, "" + t.toString(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    private void getNearByFacilitiesListFragment (List<Results> results){
+        isNearByFacilitiesListFragmentRetrieved = true;
+        createMarkers(results);
+        moveCamera(results);
+        NearbyFacilitiesListFragment nearbyFacilitiesListFragment = NearbyFacilitiesListFragment.newInstance(results);
+        nearbyFacilitiesListFragment.setOnItemClickListener(MapsActivity.this::moveCamera);
+        nearbyFacilitiesListFragment.setOnItemFavoriteClickListener(MapsActivity.this::changeFavorite);
+        nearbyFacilitiesListFragment.setOnItemDetailsClickListener(MapsActivity.this::startFacilityDetails);
+        nearbyFacilitiesListFragment.setIsItemFavorite(MapsActivity.this::isFavorite);
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.fragment_container_view, nearbyFacilitiesListFragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
     protected class FacilityDetailsContract extends ActivityResultContract<Bundle, Results> {
         @NonNull
@@ -558,15 +556,13 @@ public class MapsActivity extends AppCompatActivity implements
                 position(new LatLng(searchedLocation.getLatitude(), searchedLocation.getLongitude()))
                 .title("Current Location")
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-        searchedLocationMarker = gMap.addMarker(markerOptions);
-        nearByFacilitiesMarkers = new ArrayList<Marker>();
+        gMap.addMarker(markerOptions);
         for (Results facility : nearByFacilities) {
             MarkerOptions option = new MarkerOptions();
             option.position(facility.getGeometry().getLocation().getLatLng())
                     .title(facility.getName())
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-            Marker marker = gMap.addMarker(option);
-            nearByFacilitiesMarkers.add(marker);
+            gMap.addMarker(option);
         }
     }
     private void removeMarkers () {
@@ -609,11 +605,9 @@ public class MapsActivity extends AppCompatActivity implements
     }
     private void onExitNearByFacilities () {
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-        nearByFacilities.clear();
         removeMarkers();
-        nearByFacilitiesMarkers.clear();
         moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
-        isNearByFacilities = false;
+        isNearByFacilitiesListFragmentRetrieved = false;
     }
     private void onDropSuggestion (boolean isDrop) {
         if (isDrop) {
@@ -635,6 +629,9 @@ public class MapsActivity extends AppCompatActivity implements
         } else {
             favourites.remove(facilityDetails);
         }
+    }
+    private boolean isFavorite (Results facilitiesDetails) {
+        return favourites.contains(facilitiesDetails);
     }
     private class PlotDirection extends AsyncTask<String, Void, String> {
         private String downloadUrl(String strUrl) throws IOException {
