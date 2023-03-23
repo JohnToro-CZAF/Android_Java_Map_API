@@ -9,31 +9,31 @@ import java.io.Serializable;
 
 public class Location implements Serializable {
    @SerializedName("lng")
-    private String lng;
+    private String locationLong;
     @SerializedName("lat")
-    private String lat;
+    private String locationLat;
 
-    public String getLng() {
-        return lng;
+    public String getLocationLong() {
+        return locationLong;
     }
-    public void setLng(String lng) {
-        this.lng = lng;
+    public void setLocationLong(String locationLong) {
+        this.locationLong = locationLong;
     }
 
-    public String getLat() {
-        return lat;
+    public String getLocationLat() {
+        return locationLat;
     }
-    public void setLat(String lat) {
-        this.lat = lat;
+    public void setLocationLat(String locationLat) {
+        this.locationLat = locationLat;
     }
 
     public LatLng getLatLng() {
-        return new LatLng(Double.parseDouble(lat), Double.parseDouble(lng));
+        return new LatLng(Double.parseDouble(locationLat), Double.parseDouble(locationLong));
     }
 
     @NonNull
     @Override
     public String toString() {
-        return "ClassPojo [lng = " + lng + ", lat = " + lat + "]";
+        return "ClassPojo [lng = " + locationLong + ", lat = " + locationLat + "]";
     }
 }
