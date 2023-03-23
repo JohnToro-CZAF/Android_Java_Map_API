@@ -471,7 +471,6 @@ public class MapsActivity extends AppCompatActivity implements
 
 
                     FilterFragment filterFragment = FilterFragment.newInstance(nearByFacilities);
-                    filterFragment.retrieveFacilitiesFragment( );
 
 
 

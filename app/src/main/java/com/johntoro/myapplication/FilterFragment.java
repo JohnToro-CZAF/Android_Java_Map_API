@@ -81,19 +81,13 @@ public class FilterFragment extends Fragment {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
         spinner.setAdapter(adapter);
-
         return rootView;
     }
     public void retrieveFacilitiesFragment(List<Results> res){
         FilterControl fc = new FilterControl();
         List<Results> rescopy = new ArrayList<>(res);
         fc.sort(rescopy);
+        NearbyFacilitiesListFragment nearbyFacilitiesListFragment = NearbyFacilitiesListFragment.newInstance(rescopy);
+    }
 
-    }
-    public void setOnItemFilterClickListener(OnItemFilterClickListener listener) {
-        this.onItemFilterClickListener = listener;
-    }
-    interface OnItemFilterClickListener {
-        void onItemFilterClickListener();
-    }
 }
