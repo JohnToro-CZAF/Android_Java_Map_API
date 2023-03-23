@@ -89,7 +89,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -133,6 +136,7 @@ public class MapsActivity extends AppCompatActivity implements
     private android.location.Location searchedLocation;
     private List<Results> nearByFacilities;
     private List<Marker> nearByFacilitiesMarkers;
+    private Set<Results> favourites = new HashSet<Results>();
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
@@ -151,7 +155,6 @@ public class MapsActivity extends AppCompatActivity implements
             gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(singapore, DEFAULT_ZOOM));
             gMap.setOnMapClickListener(latLng -> {
                 if (isNearByFacilities) {
-                    Log.d(TAG, "touch on map and isNearByFacilities is true");
                     onExitNearByFacilities();
                 }
                 onDropSuggestion(false);
@@ -428,13 +431,9 @@ public class MapsActivity extends AppCompatActivity implements
         String apiKey = BuildConfig.MAPS_API_KEY;
         if (searchedLocation == null) {
             searchedLocation = currentLocation;
-            Log.d("searchedLocation NO", searchedLocation.toString());
-        } else {
-            Log.d("searchedLocation YES", searchedLocation.toString());
         }
         Log.d("searchedLocation", searchedLocation.toString());
         String url = buildUrl(searchedLocation.getLatitude(), searchedLocation.getLongitude(), apiKey, facilityType);
-        Log.d("finalUrl", url);
         GoogleApiService googleApiService = RetrofitBuilder.builder().create(GoogleApiService.class);
         Call<NearByResponse> call = googleApiService.getMyNearByPlaces(url);
         call.enqueue(new Callback<NearByResponse>() {
@@ -448,6 +447,7 @@ public class MapsActivity extends AppCompatActivity implements
                     moveCamera(nearByFacilities);
                     NearbyFacilitiesListFragment nearbyFacilitiesListFragment = NearbyFacilitiesListFragment.newInstance(nearByFacilities);
                     nearbyFacilitiesListFragment.setOnItemClickListener(MapsActivity.this::moveCamera);
+                    nearbyFacilitiesListFragment.setOnItemFavoriteClickListener(MapsActivity.this::changeFavorite);
                     nearbyFacilitiesListFragment.setOnItemDetailsClickListener(MapsActivity.this::startFacilityDetails);
                     FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                     fragmentTransaction.replace(R.id.fragment_container_view, nearbyFacilitiesListFragment);
@@ -624,6 +624,16 @@ public class MapsActivity extends AppCompatActivity implements
            this.viewAnimator.setVisibility(View.GONE);
            this.mFacilitiesLayout.setVisibility(View.VISIBLE);
            this.mGps.setVisibility(View.VISIBLE);
+        }
+    }
+    private void changeFavorite (Results facilityDetails, boolean isFavorite) {
+        for (Results facility : nearByFacilities) {
+            Log.d(TAG, "changeFavorite: " + facility.getName());
+        }
+        if (isFavorite) {
+            favourites.add(facilityDetails);
+        } else {
+            favourites.remove(facilityDetails);
         }
     }
     private class PlotDirection extends AsyncTask<String, Void, String> {

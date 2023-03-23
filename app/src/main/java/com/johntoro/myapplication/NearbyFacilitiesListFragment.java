@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.github.ivbaranov.mfb.MaterialFavoriteButton;
 import com.google.android.gms.maps.model.LatLng;
 import com.johntoro.myapplication.databinding.FragmentNearbyFacilitiesListListBinding;
 import com.johntoro.myapplication.databinding.FragmentNearbyFacilitiesListListItemBinding;
@@ -29,6 +30,7 @@ public class NearbyFacilitiesListFragment extends Fragment {
     private FragmentNearbyFacilitiesListListBinding binding;
     private OnItemLocateClickListener onItemLocateClickListener;
     private OnItemDetailsClickListener onItemDetailsClickListener;
+    private OnItemFavoriteClickListener onItemFavoriteClickListener;
 
     public static NearbyFacilitiesListFragment newInstance(List<Results> results) {
         final NearbyFacilitiesListFragment fragment = new NearbyFacilitiesListFragment();
@@ -71,6 +73,10 @@ public class NearbyFacilitiesListFragment extends Fragment {
         this.onItemDetailsClickListener = listener;
     }
 
+    public void setOnItemFavoriteClickListener(OnItemFavoriteClickListener listener) {
+        this.onItemFavoriteClickListener = listener;
+    }
+
     private class ItemAdapter extends RecyclerView.Adapter<ViewHolder> {
         private final List<Results> mResults;
         ItemAdapter(List<Results> results) {
@@ -99,6 +105,9 @@ public class NearbyFacilitiesListFragment extends Fragment {
                 Log.d(TAG, "onClick: " + facilityDetails.toString());
                 onItemDetailsClickListener.onItemDetailsClickListener(facilityDetails);
             });
+            holder.favoriteBtn.setOnFavoriteChangeListener((MaterialFavoriteButton buttonView, boolean favorite) -> {
+                onItemFavoriteClickListener.onItemFavouriteClickListener(facilityDetails, favorite);
+            });
         }
         @Override
         public int getItemCount() {
@@ -109,12 +118,14 @@ public class NearbyFacilitiesListFragment extends Fragment {
     private static class ViewHolder extends RecyclerView.ViewHolder {
         final TextView facilityName, facilityAddress;
         final View facilityDetails, locateFacility;
+        final MaterialFavoriteButton favoriteBtn;
         ViewHolder(FragmentNearbyFacilitiesListListItemBinding binding) {
             super(binding.getRoot());
             locateFacility = binding.placeImageView;
             facilityDetails = binding.details;
             facilityName = binding.facilityName;
             facilityAddress = binding.facilityAddress;
+            favoriteBtn = binding.favoriteButton;
         }
     }
     interface OnItemLocateClickListener {
@@ -122,5 +133,8 @@ public class NearbyFacilitiesListFragment extends Fragment {
     }
     interface OnItemDetailsClickListener {
         void onItemDetailsClickListener(Results facilityDetails);
+    }
+    interface OnItemFavoriteClickListener {
+        void onItemFavouriteClickListener(Results facilityDetails, boolean isFavourite);
     }
 }
