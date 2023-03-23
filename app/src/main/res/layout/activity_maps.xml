@@ -85,7 +85,7 @@
                 android:paddingEnd="@dimen/list_item_spacing_quarter"
                 android:paddingStart="@dimen/list_item_spacing_quarter"
                 android:id="@+id/btn_options_restaurant"
-                android:text="Restaurant"
+                android:text="@string/restaurant"
                 android:textSize="@dimen/list_item_text_size"
                 android:layout_marginStart="10dp"/>
             <androidx.appcompat.widget.AppCompatButton
@@ -95,7 +95,7 @@
                 android:paddingStart="@dimen/list_item_spacing_quarter"
                 android:id="@+id/btn_options_carpark"
                 android:textSize="@dimen/list_item_text_size"
-                android:text="Car park"
+                android:text="@string/car_park"
                 android:layout_marginStart="10dp"/>
             <androidx.appcompat.widget.AppCompatButton
                 android:layout_width="wrap_content"
@@ -104,7 +104,7 @@
                 android:paddingStart="@dimen/list_item_spacing_quarter"
                 android:id="@+id/btn_options_petro_station"
                 android:textSize="@dimen/list_item_text_size"
-                android:text="Petro Station"
+                android:text="@string/petrol_station"
                 android:layout_marginStart="10dp"/>
             <androidx.appcompat.widget.AppCompatButton
                 android:layout_width="wrap_content"
@@ -113,7 +113,7 @@
                 android:paddingStart="@dimen/list_item_spacing_quarter"
                 android:id="@+id/btn_options_hospital"
                 android:textSize="@dimen/list_item_text_size"
-                android:text="Hospital"
+                android:text="@string/hospital"
                 android:layout_marginStart="10dp"/>
 
         </LinearLayout>

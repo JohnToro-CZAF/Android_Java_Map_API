@@ -36,7 +36,6 @@ public class FilterFragment extends Fragment {
     private String mParam1;
     private String mParam2;
     private Spinner spinner;
-    private OnItemFilterClickListener onItemFilterClickListener;
 
     /**
      * Use this factory method to create a new instance of
@@ -73,7 +72,7 @@ public class FilterFragment extends Fragment {
         // Inflate the layout for this fragment
 
         View rootView = inflater.inflate(R.layout.fragment_filter, container, false);
-        spinner = (Spinner) rootView.findViewById(R.id.filter_spinner);
+        //spinner = (Spinner) rootView.findViewById(R.id.filter_spinner);
         // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
                 R.array.filter_array, android.R.layout.simple_spinner_item);

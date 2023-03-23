@@ -27,14 +27,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.SearchView;
-import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.ViewAnimator;
 
@@ -114,7 +112,7 @@ public class MapsActivity extends AppCompatActivity implements
     private RelativeLayout bottomSheet;
     private ProgressBar progressBar;
     private ImageView mGps, mInfo, mPlacePicker;
-    private AppCompatButton mHospital, mRestaurent, mPetro, mCarPark;
+    private AppCompatButton mHospital, mRestaurant, mPetrol, mCarPark;
     private LinearLayout mFacilitiesLayout, mExitDirections;
     private GoogleMap gMap;
     private Marker currentLocationMarker;
@@ -177,9 +175,9 @@ public class MapsActivity extends AppCompatActivity implements
         mExitDirections = (LinearLayout) findViewById(R.id.exit_direction);
         mGps = (ImageView) findViewById(R.id.ic_my_location);
         mHospital = (AppCompatButton) findViewById(R.id.btn_options_hospital);
-        mRestaurent = (AppCompatButton) findViewById(R.id.btn_options_restaurant);
+        mRestaurant = (AppCompatButton) findViewById(R.id.btn_options_restaurant);
         mCarPark = (AppCompatButton) findViewById(R.id.btn_options_carpark);
-        mPetro = (AppCompatButton) findViewById(R.id.btn_options_petro_station);
+        mPetrol = (AppCompatButton) findViewById(R.id.btn_options_petro_station);
         mFacilitiesLayout = (LinearLayout) findViewById(R.id.facilities_buttons_layout);
         bottomSheet = (RelativeLayout) findViewById(R.id.bottom_sheet);
         bottomSheetBehavior=BottomSheetBehavior.from(bottomSheet);
@@ -238,7 +236,7 @@ public class MapsActivity extends AppCompatActivity implements
     }
     private void initRetrieveFacilities () {
         Log.d(TAG, "init: initializing BUTTON to retrieve facilities");
-        mPetro.setOnClickListener(v -> {
+        mPetrol.setOnClickListener(v -> {
             Log.d(TAG, "onClick: clicked petro station button");
             if (isNearByFacilities) {
                 onExitNearByFacilities();
@@ -252,7 +250,7 @@ public class MapsActivity extends AppCompatActivity implements
             }
             retrieveFacilitiesFragment("hospital");
         });
-        mRestaurent.setOnClickListener(v -> {
+        mRestaurant.setOnClickListener(v -> {
             Log.d(TAG, "onClick: clicked restaurant button");
             if (isNearByFacilities) {
                 onExitNearByFacilities();
@@ -396,7 +394,7 @@ public class MapsActivity extends AppCompatActivity implements
                     }else{
                         Log.d(TAG, "onComplete: current location is null");
                         // If the current location is null, then move the camera to the default location
-                        Toast.makeText(MapsActivity.this, "unble to get current location", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MapsActivity.this, "unable to get current location", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
