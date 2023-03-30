@@ -1,4 +1,5 @@
 package com.johntoro.myapplication.models;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.firebase.database.Exclude;
@@ -24,5 +25,10 @@ public class EmergencyContact {
     @Override
     public int hashCode() {
         return Objects.hash(id, userEmail, fullName, email, mobile, isDeleted);
+    }
+    @NonNull
+    @Override
+    public String toString() {
+        return "id: " + id + ", userEmail: " + userEmail + ", fullName: " + fullName + ", email: " + email + ", mobile: " + mobile + ", isDeleted: " + isDeleted;
     }
 }
