@@ -5,4 +5,16 @@
     <string name="search_hint">Search a place</string>
     <string name="nearByResponse">nearByResponse </string>
     <string name="warning_no_opening_hours"> Warning: Open hours is not available </string>
+    <string name="filter_fragment">Filter</string>
+    <string name="petrol_station">Petrol Station</string>
+    <string name="hospital">Hospital</string>
+    <string name="restaurant">Restaurant</string>
+    <string name="car_park">Car Park</string>
+    <string name="facility_place_name">Place Name</string>
+    <string name="rating_view">5</string>
+    <string name="place_address">Place Address</string>
+    <string-array name="filter_array">
+        <item>Ratings</item>
+        <item>Opening Hours</item>
+    </string-array>
 </resources>

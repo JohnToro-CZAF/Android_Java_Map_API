@@ -73,7 +73,8 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContract;
 import com.google.maps.android.SphericalUtil;
 
-import org.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -107,8 +108,8 @@ public class MapsActivity extends AppCompatActivity implements
     private BottomSheetBehavior bottomSheetBehavior;
     private RelativeLayout bottomSheet;
     private ProgressBar progressBar;
-    private ImageView mGps,mFavorite;
-    private AppCompatButton mHospital, mRestaurent, mPetro, mCarPark;
+    private ImageView mGps, mInfo, mPlacePicker;
+    private AppCompatButton mHospital, mRestaurant, mPetrol, mCarPark;
     private LinearLayout mFacilitiesLayout, mExitDirections;
     private GoogleMap gMap;
     private Marker currentLocationMarker;
@@ -170,7 +171,7 @@ public class MapsActivity extends AppCompatActivity implements
         mHospital = findViewById(R.id.btn_options_hospital);
         mRestaurent = findViewById(R.id.btn_options_restaurant);
         mCarPark = findViewById(R.id.btn_options_carpark);
-        mPetro = findViewById(R.id.btn_options_petro_station);
+        mPetrol = findViewById(R.id.btn_options_petro_station);
         mFacilitiesLayout = findViewById(R.id.facilities_buttons_layout);
         bottomSheet = findViewById(R.id.bottom_sheet);
         bottomSheetBehavior=BottomSheetBehavior.from(bottomSheet);
@@ -183,6 +184,19 @@ public class MapsActivity extends AppCompatActivity implements
             initRetrieveFacilities();
         }
     }
+    // uncomment to add different map views
+    /*public void onNormalMap(View view) {
+        gMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+    }
+    public void onSatelliteMap(View view) {
+        gMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+    }
+    public void onTerrainMap(View view) {
+        gMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+    }
+    public void onHybridMap(View view) {
+        gMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+    }*/
     @Override
     public boolean onCreateOptionsMenu (@NonNull Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
@@ -222,7 +236,7 @@ public class MapsActivity extends AppCompatActivity implements
     }
     private void initRetrieveFacilities () {
         Log.d(TAG, "init: initializing BUTTON to retrieve facilities");
-        mPetro.setOnClickListener(v -> {
+        mPetrol.setOnClickListener(v -> {
             Log.d(TAG, "onClick: clicked petro station button");
             if (isNearByFacilitiesListFragmentRetrieved) {
                 onExitNearByFacilities();
@@ -236,7 +250,7 @@ public class MapsActivity extends AppCompatActivity implements
             }
             retrieveFacilitiesFragment("hospital");
         });
-        mRestaurent.setOnClickListener(v -> {
+        mRestaurant.setOnClickListener(v -> {
             Log.d(TAG, "onClick: clicked restaurant button");
             if (isNearByFacilitiesListFragmentRetrieved) {
                 onExitNearByFacilities();
