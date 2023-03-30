@@ -478,8 +478,13 @@ public class MapsActivity extends AppCompatActivity implements
         fragmentTransaction.replace(R.id.fragment_container_view, nearbyFacilitiesListFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
-        FilterFragment filterFragment = FilterFragment.newInstance(results);
+
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        FilterFragment filterFragment = FilterFragment.newInstance(results);
+        //fragmentTransaction.add(filterFragment, "filter");
+        fragmentTransaction.add(R.id.fragment_container_view, filterFragment);
+        //fragmentTransaction.commit();
+
     }
     protected class FacilityDetailsContract extends ActivityResultContract<Bundle, Results> {
         @NonNull

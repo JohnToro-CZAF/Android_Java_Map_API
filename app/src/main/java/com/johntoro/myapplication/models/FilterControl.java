@@ -11,6 +11,10 @@ public class FilterControl {
         this.isActiveHours = false;
         this.isRating = false;
     }
+    public FilterControl(boolean rating, boolean active){
+        this.isActiveHours = active;
+        this.isRating = rating;
+    }
     // when click on filter by rating, set this to true
     public void setActiveHours(boolean activeHours) {
         isActiveHours = activeHours;
@@ -23,9 +27,11 @@ public class FilterControl {
     public void sort(List<Results> res){
         if (isActiveHours){
             //res.sort(Comparator.comparing(Results::getOpeningHours));
+            isActiveHours = false;
         }
         if (isRating){
             res.sort(Comparator.comparing(Results::getRating));
+            isRating = false;
         }
     }
 
