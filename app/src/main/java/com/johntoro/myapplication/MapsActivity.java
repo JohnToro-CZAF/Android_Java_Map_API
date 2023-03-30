@@ -63,7 +63,6 @@ import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRe
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.navigation.NavigationBarView;
 import com.johntoro.myapplication.models.NearByResponse;
 import com.johntoro.myapplication.models.Results;
 import com.johntoro.myapplication.remotes.DirectionsJSONParser;
@@ -130,6 +129,7 @@ public class MapsActivity extends AppCompatActivity implements
     private android.location.Location searchedLocation;
     private List<Results> nearByFacilities;
     private Set<Results> favourites = new HashSet<Results>();
+    private String userEmail;
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
@@ -157,6 +157,8 @@ public class MapsActivity extends AppCompatActivity implements
     }
     @Override
     protected void onCreate (Bundle savedInstanceState) {
+        Intent intent = getIntent();
+        userEmail = intent.getStringExtra("email");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setSupportActionBar(findViewById(R.id.toolbar));
@@ -205,12 +207,17 @@ public class MapsActivity extends AppCompatActivity implements
     private void initBottomNavBar () {
         bottomNavBar.setOnItemSelectedListener((MenuItem menuItem) -> {
                 int id = menuItem.getItemId();
+                Intent intent;
                 switch(id){
                     case R.id.profile:
-                        startActivity(new Intent(MapsActivity.this, ProfileActivity.class));
+                        intent = new Intent(MapsActivity.this, ProfileActivity.class);
+                        intent.putExtra("email", userEmail);
+                        startActivity(intent);
                         break;
                     case R.id.settings:
-                        startActivity(new Intent(MapsActivity.this, EmergencyContactActivity.class));
+                        intent = new Intent(MapsActivity.this, EmergencyContactsActivity.class);
+                        intent.putExtra("email", userEmail);
+                        startActivity(intent);
                 }
                 return true;
             });

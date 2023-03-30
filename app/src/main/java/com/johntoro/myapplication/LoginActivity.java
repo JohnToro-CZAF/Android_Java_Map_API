@@ -133,7 +133,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 task.getResult(ApiException.class);
-                goToHome();
+                GoogleSignInAccount googleAccount = GoogleSignIn.getLastSignedInAccount(this);
+                assert googleAccount != null;
+                String email = googleAccount.getEmail();
+                goToHome(email);
             } catch (ApiException e) {
                 Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
             }
@@ -170,7 +173,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                     assert user != null;
                     if(user.isEmailVerified()){
-                        goToHome();
+                        goToHome(email);
                     }
                     else{
                         user.sendEmailVerification();
@@ -185,11 +188,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
     public void googleSignIn(){
         Intent intent = gsc.getSignInIntent();
+        Log.d("NVM", "googleSignIn: " + intent);
         startActivityForResult(intent, 100);
     }
-    private void goToHome() {
+    private void goToHome(String email) {
         finish();
         Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
+        intent.putExtra("email", email);
         startActivity(intent);
     }
 }
