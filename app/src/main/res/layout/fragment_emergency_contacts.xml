@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+<!--    tools:context=".EmergencyContactsFragment">-->
+
+    <ImageView
+        android:id="@+id/appLogo"
+        android:layout_width="141dp"
+        android:layout_height="138dp"
+        android:layout_marginTop="4dp"
+        android:src="@drawable/main_logo"
+        android:layout_gravity="center_horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <TextView
+        android:id="@+id/emergency_contacts_text"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingTop="139dp"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal"
+        android:fontFamily="@font/inter_bold"
+        android:text="@string/emergency_contacts"
+        android:textColor="@color/red_dark"
+        android:textSize="23sp"
+        />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view_contacts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:paddingTop="170dp"
+        android:paddingBottom="140dp"
+        tools:listitem="@layout/recycler_view_contact"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+    <Button
+        android:id="@+id/add_contact_button"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/ic_add_circle"
+        android:layout_gravity="center_horizontal|bottom"
+        android:contentDescription="@string/add_contact_button"
+        app:backgroundTint="@null"
+        />
+    <Button
+        android:id="@+id/back_Button"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_margin="15dp"
+        android:background="@drawable/ic_back"
+        android:layout_gravity="left|top"
+        android:contentDescription="@string/press_to_go_back"
+        app:backgroundTint="@null"
+        />
+</FrameLayout>

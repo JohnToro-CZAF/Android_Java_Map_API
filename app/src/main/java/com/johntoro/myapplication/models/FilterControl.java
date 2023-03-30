@@ -1,6 +1,5 @@
 package com.johntoro.myapplication.models;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 

@@ -61,7 +61,9 @@ import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.FetchPlaceResponse;
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.navigation.NavigationBarView;
 import com.johntoro.myapplication.models.NearByResponse;
 import com.johntoro.myapplication.models.Results;
 import com.johntoro.myapplication.remotes.DirectionsJSONParser;
@@ -72,9 +74,7 @@ import com.johntoro.myapplication.remotes.RetrofitBuilder;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContract;
 import com.google.maps.android.SphericalUtil;
-
-import org.json.JSONArray;
-import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -104,11 +104,12 @@ public class MapsActivity extends AppCompatActivity implements
     private static final float DEFAULT_ZOOM = 15f;
     // endregion
     // region widgets
+    private BottomNavigationView bottomNavBar;
     private ViewAnimator viewAnimator;
     private BottomSheetBehavior bottomSheetBehavior;
     private RelativeLayout bottomSheet;
     private ProgressBar progressBar;
-    private ImageView mGps, mInfo, mPlacePicker;
+    private ImageView mGps, mFavorite;
     private AppCompatButton mHospital, mRestaurant, mPetrol, mCarPark;
     private LinearLayout mFacilitiesLayout, mExitDirections;
     private GoogleMap gMap;
@@ -169,12 +170,13 @@ public class MapsActivity extends AppCompatActivity implements
         mGps = findViewById(R.id.ic_my_location);
         mFavorite = findViewById(R.id.ic_my_fav);
         mHospital = findViewById(R.id.btn_options_hospital);
-        mRestaurent = findViewById(R.id.btn_options_restaurant);
+        mRestaurant = findViewById(R.id.btn_options_restaurant);
         mCarPark = findViewById(R.id.btn_options_carpark);
         mPetrol = findViewById(R.id.btn_options_petro_station);
         mFacilitiesLayout = findViewById(R.id.facilities_buttons_layout);
         bottomSheet = findViewById(R.id.bottom_sheet);
         bottomSheetBehavior=BottomSheetBehavior.from(bottomSheet);
+        bottomNavBar = findViewById(R.id.bottomNavigationView);
         initRecyclerView();
         getLocationPermissionAndInitialize();
         if (mLocationPermissionsGranted) {
@@ -182,21 +184,9 @@ public class MapsActivity extends AppCompatActivity implements
             initGps();
             initFavorite();
             initRetrieveFacilities();
+            initBottomNavBar();
         }
     }
-    // uncomment to add different map views
-    /*public void onNormalMap(View view) {
-        gMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-    }
-    public void onSatelliteMap(View view) {
-        gMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-    }
-    public void onTerrainMap(View view) {
-        gMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-    }
-    public void onHybridMap(View view) {
-        gMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-    }*/
     @Override
     public boolean onCreateOptionsMenu (@NonNull Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
@@ -211,6 +201,19 @@ public class MapsActivity extends AppCompatActivity implements
             return false;
         }
         return super.onOptionsItemSelected(item);
+    }
+    private void initBottomNavBar () {
+        bottomNavBar.setOnItemSelectedListener((MenuItem menuItem) -> {
+                int id = menuItem.getItemId();
+                switch(id){
+                    case R.id.profile:
+                        startActivity(new Intent(MapsActivity.this, ProfileActivity.class));
+                        break;
+                    case R.id.settings:
+                        startActivity(new Intent(MapsActivity.this, EmergencyContactActivity.class));
+                }
+                return true;
+            });
     }
     private void initFavorite () {
         mFavorite.setOnClickListener(v -> {
