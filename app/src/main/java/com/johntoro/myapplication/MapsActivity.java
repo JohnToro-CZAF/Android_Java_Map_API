@@ -36,10 +36,6 @@ import android.widget.SearchView;
 import android.widget.Toast;
 import android.widget.ViewAnimator;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -58,15 +54,14 @@ import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.AutocompletePrediction;
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
 import com.google.android.libraries.places.api.model.LocationBias;
+import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.api.model.TypeFilter;
+import com.google.android.libraries.places.api.net.FetchPlaceRequest;
+import com.google.android.libraries.places.api.net.FetchPlaceResponse;
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.johntoro.myapplication.adapters.LatLngAdapter;
-import com.johntoro.myapplication.models.GeocodingResult;
 import com.johntoro.myapplication.models.NearByResponse;
 import com.johntoro.myapplication.models.Results;
 import com.johntoro.myapplication.remotes.DirectionsJSONParser;
@@ -78,10 +73,8 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContract;
 import com.google.maps.android.SphericalUtil;
 
-
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -90,8 +83,12 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -99,13 +96,13 @@ import retrofit2.Response;
 public class MapsActivity extends AppCompatActivity implements
         OnMapReadyCallback
 {
-    //region Final Variables
+    // region Final Variables
     private static final String TAG = "MapActivity";
     private static final String FINE_LOCATION = android.Manifest.permission.ACCESS_FINE_LOCATION;
     private static final String COARSE_LOCATION = android.Manifest.permission.ACCESS_COARSE_LOCATION;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
     private static final float DEFAULT_ZOOM = 15f;
-    //endregion
+    // endregion
     // region widgets
     private ViewAnimator viewAnimator;
     private BottomSheetBehavior bottomSheetBehavior;
@@ -116,24 +113,22 @@ public class MapsActivity extends AppCompatActivity implements
     private LinearLayout mFacilitiesLayout, mExitDirections;
     private GoogleMap gMap;
     private Marker currentLocationMarker;
+    private Marker searchedLocationMarker;
     private Polyline currentPolyline;
     // endregion
     // vars
     private Boolean mLocationPermissionsGranted = false;
-    private Boolean isNearByFacilities = false;
+    private Boolean isNearByFacilitiesListFragmentRetrieved = false;
     // region AutoSuggestionSearchLocation
     private final Handler handler = new Handler();
     private final PlacePredictionAdapter adapter = new PlacePredictionAdapter();
-    private final Gson gson = new GsonBuilder().registerTypeAdapter(LatLng.class, new LatLngAdapter()).create();
-    private RequestQueue queue;
     private PlacesClient placesClient;
     private AutocompleteSessionToken sessionToken;
     // endregion
     private android.location.Location currentLocation;
-    // TODO: SearchedLocation
     private android.location.Location searchedLocation;
     private List<Results> nearByFacilities;
-    private List<Marker> nearByFacilitiesMarkers;
+    private Set<Results> favourites = new HashSet<Results>();
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
@@ -151,8 +146,7 @@ public class MapsActivity extends AppCompatActivity implements
             gMap.getUiSettings().setMyLocationButtonEnabled(false);
             gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(singapore, DEFAULT_ZOOM));
             gMap.setOnMapClickListener(latLng -> {
-                if (isNearByFacilities) {
-                    Log.d(TAG, "touch on map and isNearByFacilities is true");
+                if (isNearByFacilitiesListFragmentRetrieved) {
                     onExitNearByFacilities();
                 }
                 onDropSuggestion(false);
@@ -165,27 +159,28 @@ public class MapsActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setSupportActionBar(findViewById(R.id.toolbar));
-        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
-        viewAnimator = (ViewAnimator) findViewById(R.id.view_animator);
+        progressBar = findViewById(R.id.progress_bar);
+        viewAnimator = findViewById(R.id.view_animator);
         if (!Places.isInitialized()) {
             Places.initialize(getApplicationContext(), BuildConfig.MAPS_API_KEY);
         }
         placesClient = Places.createClient(this);
-        queue = Volley.newRequestQueue(this);
-        mExitDirections = (LinearLayout) findViewById(R.id.exit_direction);
-        mGps = (ImageView) findViewById(R.id.ic_my_location);
-        mHospital = (AppCompatButton) findViewById(R.id.btn_options_hospital);
-        mRestaurant = (AppCompatButton) findViewById(R.id.btn_options_restaurant);
-        mCarPark = (AppCompatButton) findViewById(R.id.btn_options_carpark);
-        mPetrol = (AppCompatButton) findViewById(R.id.btn_options_petro_station);
-        mFacilitiesLayout = (LinearLayout) findViewById(R.id.facilities_buttons_layout);
-        bottomSheet = (RelativeLayout) findViewById(R.id.bottom_sheet);
+        mExitDirections = findViewById(R.id.exit_direction);
+        mGps = findViewById(R.id.ic_my_location);
+        mFavorite = findViewById(R.id.ic_my_fav);
+        mHospital = findViewById(R.id.btn_options_hospital);
+        mRestaurent = findViewById(R.id.btn_options_restaurant);
+        mCarPark = findViewById(R.id.btn_options_carpark);
+        mPetrol = findViewById(R.id.btn_options_petro_station);
+        mFacilitiesLayout = findViewById(R.id.facilities_buttons_layout);
+        bottomSheet = findViewById(R.id.bottom_sheet);
         bottomSheetBehavior=BottomSheetBehavior.from(bottomSheet);
         initRecyclerView();
         getLocationPermissionAndInitialize();
         if (mLocationPermissionsGranted) {
             initMap();
             initGps();
+            initFavorite();
             initRetrieveFacilities();
         }
     }
@@ -217,7 +212,12 @@ public class MapsActivity extends AppCompatActivity implements
         }
         return super.onOptionsItemSelected(item);
     }
-
+    private void initFavorite () {
+        mFavorite.setOnClickListener(v -> {
+            List<Results> favouritesList = new ArrayList<>(favourites);
+            getNearByFacilitiesListFragment(favouritesList);
+        });
+    }
     protected void initRecyclerView () {
         final RecyclerView recyclerView = findViewById(R.id.recycler_view);
         final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -238,28 +238,28 @@ public class MapsActivity extends AppCompatActivity implements
         Log.d(TAG, "init: initializing BUTTON to retrieve facilities");
         mPetrol.setOnClickListener(v -> {
             Log.d(TAG, "onClick: clicked petro station button");
-            if (isNearByFacilities) {
+            if (isNearByFacilitiesListFragmentRetrieved) {
                 onExitNearByFacilities();
             }
             retrieveFacilitiesFragment("petro station");
         });
         mHospital.setOnClickListener(v -> {
             Log.d(TAG, "onClick: clicked hospital button");
-            if (isNearByFacilities) {
+            if (isNearByFacilitiesListFragmentRetrieved) {
                 onExitNearByFacilities();
             }
             retrieveFacilitiesFragment("hospital");
         });
         mRestaurant.setOnClickListener(v -> {
             Log.d(TAG, "onClick: clicked restaurant button");
-            if (isNearByFacilities) {
+            if (isNearByFacilitiesListFragmentRetrieved) {
                 onExitNearByFacilities();
             }
             retrieveFacilitiesFragment("restaurant");
         });
         mCarPark.setOnClickListener(v -> {
             Log.d(TAG, "onClick: clicked car park button");
-            if (isNearByFacilities) {
+            if (isNearByFacilitiesListFragmentRetrieved) {
                 onExitNearByFacilities();
             }
             retrieveFacilitiesFragment("car park");
@@ -308,10 +308,10 @@ public class MapsActivity extends AppCompatActivity implements
         final FindAutocompletePredictionsRequest newRequest = FindAutocompletePredictionsRequest
                 .builder()
                 .setSessionToken(sessionToken)
+                .setCountry("SG")
                 .setLocationBias(boxBias)
                 .setTypeFilter(TypeFilter.ESTABLISHMENT)
                 .setQuery(query)
-                .setCountries("IN")
                 .build();
 
         // Perform autocomplete predictions request
@@ -332,31 +332,26 @@ public class MapsActivity extends AppCompatActivity implements
         // Construct the request URL
         final String apiKey = BuildConfig.MAPS_API_KEY;
         final String url = "https://maps.googleapis.com/maps/api/geocode/json?place_id=%s&key=%s";
-        final String requestURL = String.format(url, placePrediction.getPlaceId(), apiKey);
-
-        // Use the HTTP request URL for Geocoding API to get geographic coordinates for the place
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, requestURL, null,
-                response -> {
-                    try {
-                        // Inspect the value of "results" and make sure it's not empty
-                        JSONArray results = response.getJSONArray("results");
-                        if (results.length() == 0) {
-                            Log.w(TAG, "No results from geocoding request.");
-                            return;
-                        }
-                        // Use Gson to convert the response JSON object to a POJO
-                        GeocodingResult result = gson.fromJson(
-                                results.getString(0), GeocodingResult.class);
-                        LatLng latLng = result.geometry.getLocation().getLatLng();
-                        moveCamera(latLng);
-                        onDropSuggestion(false);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }, error -> Log.e(TAG, "Request failed"));
-
-        // Add the request to the Request queue.
-        queue.add(request);
+        final String placeId = placePrediction.getPlaceId();
+        final String requestURL = String.format(url, placeId, apiKey);
+        List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
+        // Construct a request object, passing the place ID and fields array.
+        final FetchPlaceRequest request = FetchPlaceRequest.newInstance(placeId, placeFields);
+        Task<FetchPlaceResponse> fetchPlaceTask = placesClient.fetchPlace(request);
+        fetchPlaceTask.addOnSuccessListener((response) -> {
+            Place place = response.getPlace();
+            LatLng searchedLatLng = place.getLatLng();
+            assert searchedLatLng != null;
+            searchedLocation = new android.location.Location("");
+            searchedLocation.setLatitude(searchedLatLng.latitude);
+            searchedLocation.setLongitude(searchedLatLng.longitude);
+            moveCamera(searchedLatLng);
+        }).addOnFailureListener((exception) -> {
+            if (exception instanceof ApiException) {
+                ApiException apiException = (ApiException) exception;
+                Log.e(TAG, "Place not found: " + apiException.getStatusCode());
+            }
+        });
     }
     private void searchLocationByString (String query) {
         Log.d(TAG, "searchGeoLocation: searching for location");
@@ -370,31 +365,24 @@ public class MapsActivity extends AppCompatActivity implements
         if (list.size() > 0) {
             Address address = list.get(0);
             Log.d(TAG, "searchGeoLocation: found a location: " + address.toString());
+            searchedLocation = new android.location.Location(String.valueOf(address));
             moveCamera(new LatLng(address.getLatitude(), address.getLongitude()));
         }
     }
+    @SuppressLint("MissingPermission")
     private void getDeviceLocation () {
         Log.d(TAG, "getDeviceLocation: getting the devices current location");
         FusedLocationProviderClient mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         try {
             if (mLocationPermissionsGranted) {
-                @SuppressLint("MissingPermission") Task<android.location.Location> location = mFusedLocationProviderClient.getLastLocation();
-                location.addOnCompleteListener(task -> {
-                    if (task.isSuccessful()){
+                mFusedLocationProviderClient.getLastLocation().addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
                         Log.d(TAG, "onComplete: found location!");
-                        currentLocation = (android.location.Location) task.getResult();
-                        if (currentLocation != null) {
-                            moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
-                            Toast.makeText(MapsActivity.this, "Current location is " + currentLocation.getLatitude() + ", " + currentLocation.getLongitude(), Toast.LENGTH_SHORT).show();
-                        } else {
-                            Log.d(TAG, "task is successful but current location is null");
-                            // If the current location is null, then move the camera to the default location
-                            Toast.makeText(MapsActivity.this, "unable to get current location (due to the internal app error)", Toast.LENGTH_SHORT).show();
-                        }
-                    }else{
+                        currentLocation = task.getResult();
+                        moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+                    } else {
                         Log.d(TAG, "onComplete: current location is null");
-                        // If the current location is null, then move the camera to the default location
-                        Toast.makeText(MapsActivity.this, "unable to get current location", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "unable to get current location", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -442,16 +430,19 @@ public class MapsActivity extends AppCompatActivity implements
                 "&types=" + facilityType.toLowerCase() +
                 "&key=" + API_KEY;
     }
+
     private void retrieveFacilitiesFragment (String facilityType) {
-        isNearByFacilities = true;
         final ProgressDialog dialog = new ProgressDialog(this);
         dialog.setMessage("Loading...");
         dialog.setCancelable(false);
         dialog.setIndeterminate(false);
         dialog.show();
         String apiKey = BuildConfig.MAPS_API_KEY;
-        String url = buildUrl(currentLocation.getLatitude(), currentLocation.getLongitude(), apiKey, facilityType);
-        Log.d("finalUrl", url);
+        if (searchedLocation == null) {
+            searchedLocation = currentLocation;
+        }
+        Log.d("searchedLocation", searchedLocation.toString());
+        String url = buildUrl(searchedLocation.getLatitude(), searchedLocation.getLongitude(), apiKey, facilityType);
         GoogleApiService googleApiService = RetrofitBuilder.builder().create(GoogleApiService.class);
         Call<NearByResponse> call = googleApiService.getMyNearByPlaces(url);
         call.enqueue(new Callback<NearByResponse>() {
@@ -460,25 +451,7 @@ public class MapsActivity extends AppCompatActivity implements
                 NearByResponse nearByResponse = response.body();
                 if (nearByResponse != null) {
                     nearByFacilities = nearByResponse.getResults();
-                    // region set up the bottom sheet once we got List<Results>
-                    createMarkers(nearByFacilities);
-                    moveCamera(nearByFacilities);
-                    NearbyFacilitiesListFragment nearbyFacilitiesListFragment = NearbyFacilitiesListFragment.newInstance(nearByFacilities);
-                    nearbyFacilitiesListFragment.setOnItemClickListener(MapsActivity.this::moveCamera);
-                    nearbyFacilitiesListFragment.setOnItemDetailsClickListener(MapsActivity.this::startFacilityDetails);
-
-
-                    FilterFragment filterFragment = FilterFragment.newInstance(nearByFacilities);
-
-
-
-
-                    FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                    fragmentTransaction.replace(R.id.fragment_container_view, nearbyFacilitiesListFragment);
-                    fragmentTransaction.addToBackStack(null);
-                    fragmentTransaction.commit();
-                    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                    // endregion
+                    getNearByFacilitiesListFragment(nearByFacilities);
                 }
                 dialog.dismiss();
             }
@@ -489,6 +462,21 @@ public class MapsActivity extends AppCompatActivity implements
                 Toast.makeText(MapsActivity.this, "" + t.toString(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    private void getNearByFacilitiesListFragment (List<Results> results){
+        isNearByFacilitiesListFragmentRetrieved = true;
+        createMarkers(results);
+        moveCamera(results);
+        NearbyFacilitiesListFragment nearbyFacilitiesListFragment = NearbyFacilitiesListFragment.newInstance(results);
+        nearbyFacilitiesListFragment.setOnItemClickListener(MapsActivity.this::moveCamera);
+        nearbyFacilitiesListFragment.setOnItemFavoriteClickListener(MapsActivity.this::changeFavorite);
+        nearbyFacilitiesListFragment.setOnItemDetailsClickListener(MapsActivity.this::startFacilityDetails);
+        nearbyFacilitiesListFragment.setIsItemFavorite(MapsActivity.this::isFavorite);
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.fragment_container_view, nearbyFacilitiesListFragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
     protected class FacilityDetailsContract extends ActivityResultContract<Bundle, Results> {
         @NonNull
@@ -575,26 +563,30 @@ public class MapsActivity extends AppCompatActivity implements
         facilityDetailsLauncher.launch(bundle);
     }
     private void createMarkers (List<Results> nearByFacilities) {
+        if (searchedLocation == null) {
+            searchedLocation = currentLocation;
+        }
         MarkerOptions markerOptions = new MarkerOptions().
-                position(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()))
+                position(new LatLng(searchedLocation.getLatitude(), searchedLocation.getLongitude()))
                 .title("Current Location")
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-        currentLocationMarker = gMap.addMarker(markerOptions);
-        nearByFacilitiesMarkers = new ArrayList<Marker>();
+        gMap.addMarker(markerOptions);
         for (Results facility : nearByFacilities) {
             MarkerOptions option = new MarkerOptions();
             option.position(facility.getGeometry().getLocation().getLatLng())
                     .title(facility.getName())
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-            Marker marker = gMap.addMarker(option);
-            nearByFacilitiesMarkers.add(marker);
+            gMap.addMarker(option);
         }
     }
     private void removeMarkers () {
         // TODO: remove all needed markers instead of by marker.remove() but this method
         // TODO: is not working
+        if (searchedLocation == null) {
+            searchedLocation = currentLocation;
+        }
         gMap.clear();
-        LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+        LatLng latLng = new LatLng(searchedLocation.getLatitude(), searchedLocation.getLongitude());
         gMap.addMarker(new MarkerOptions().position(latLng).title("Current Location"));
     }
     private void getLocationPermissionAndInitialize (){
@@ -627,11 +619,9 @@ public class MapsActivity extends AppCompatActivity implements
     }
     private void onExitNearByFacilities () {
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-        nearByFacilities.clear();
         removeMarkers();
-        nearByFacilitiesMarkers.clear();
         moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
-        isNearByFacilities = false;
+        isNearByFacilitiesListFragmentRetrieved = false;
     }
     private void onDropSuggestion (boolean isDrop) {
         if (isDrop) {
@@ -643,6 +633,19 @@ public class MapsActivity extends AppCompatActivity implements
            this.mFacilitiesLayout.setVisibility(View.VISIBLE);
            this.mGps.setVisibility(View.VISIBLE);
         }
+    }
+    private void changeFavorite (Results facilityDetails, boolean isFavorite) {
+        for (Results facility : nearByFacilities) {
+            Log.d(TAG, "changeFavorite: " + facility.getName());
+        }
+        if (isFavorite) {
+            favourites.add(facilityDetails);
+        } else {
+            favourites.remove(facilityDetails);
+        }
+    }
+    private boolean isFavorite (Results facilitiesDetails) {
+        return favourites.contains(facilitiesDetails);
     }
     private class PlotDirection extends AsyncTask<String, Void, String> {
         private String downloadUrl(String strUrl) throws IOException {
