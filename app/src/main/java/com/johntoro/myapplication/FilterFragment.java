@@ -53,34 +53,20 @@ public class FilterFragment extends Fragment {
         return fragment;
     }
 
-    public FilterFragment() {
-        // Required empty public constructor
-    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+        assert getArguments() != null;
+        getArguments().getSerializable("res");
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-
-        View rootView = inflater.inflate(R.layout.fragment_filter, container, false);
-        //spinner = (Spinner) rootView.findViewById(R.id.filter_spinner);
-        // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
-                R.array.filter_array, android.R.layout.simple_spinner_item);
-        // Specify the layout to use when the list of choices appears
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // Apply the adapter to the spinner
-        spinner.setAdapter(adapter);
-        return rootView;
+        return inflater.inflate(R.layout.fragment_filter, container, false);
     }
     public void retrieveFacilitiesFragment(List<Results> res){
         FilterControl fc = new FilterControl();

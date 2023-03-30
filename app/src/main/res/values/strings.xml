@@ -11,8 +11,9 @@
     <string name="restaurant">Restaurant</string>
     <string name="car_park">Car Park</string>
     <string name="facility_place_name">Place Name</string>
-    <string name="rating_view">5</string>
+    <string name="rating_view">Rating</string>
     <string name="place_address">Place Address</string>
+    <string name="is_open_button">Open Now</string>
     <string-array name="filter_array">
         <item>Ratings</item>
         <item>Opening Hours</item>

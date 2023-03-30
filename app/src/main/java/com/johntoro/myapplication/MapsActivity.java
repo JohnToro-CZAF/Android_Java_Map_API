@@ -75,6 +75,7 @@ import com.google.maps.android.SphericalUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -108,7 +109,7 @@ public class MapsActivity extends AppCompatActivity implements
     private BottomSheetBehavior bottomSheetBehavior;
     private RelativeLayout bottomSheet;
     private ProgressBar progressBar;
-    private ImageView mGps, mInfo, mPlacePicker;
+    private ImageView mGps, mInfo, mPlacePicker, mFavorite;
     private AppCompatButton mHospital, mRestaurant, mPetrol, mCarPark;
     private LinearLayout mFacilitiesLayout, mExitDirections;
     private GoogleMap gMap;
@@ -169,7 +170,7 @@ public class MapsActivity extends AppCompatActivity implements
         mGps = findViewById(R.id.ic_my_location);
         mFavorite = findViewById(R.id.ic_my_fav);
         mHospital = findViewById(R.id.btn_options_hospital);
-        mRestaurent = findViewById(R.id.btn_options_restaurant);
+        mRestaurant = findViewById(R.id.btn_options_restaurant);
         mCarPark = findViewById(R.id.btn_options_carpark);
         mPetrol = findViewById(R.id.btn_options_petro_station);
         mFacilitiesLayout = findViewById(R.id.facilities_buttons_layout);
@@ -472,10 +473,12 @@ public class MapsActivity extends AppCompatActivity implements
         nearbyFacilitiesListFragment.setOnItemFavoriteClickListener(MapsActivity.this::changeFavorite);
         nearbyFacilitiesListFragment.setOnItemDetailsClickListener(MapsActivity.this::startFacilityDetails);
         nearbyFacilitiesListFragment.setIsItemFavorite(MapsActivity.this::isFavorite);
+
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container_view, nearbyFacilitiesListFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
+        FilterFragment filterFragment = FilterFragment.newInstance(results);
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
     protected class FacilityDetailsContract extends ActivityResultContract<Bundle, Results> {
