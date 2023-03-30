@@ -1,13 +1,14 @@
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal"
-    android:paddingStart='16dp'
-    android:paddingTop='100dp'
-    android:gravity="start"
+    android:paddingStart='4dp'
+
     tools:context=".FilterFragment">
+
     <Button
         android:id="@+id/is_open_button"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -16,7 +17,7 @@
         app:layout_constraintVertical_bias="0.198"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="4dp"
+        android:layout_marginEnd="10dp"
         android:text="@string/is_open_button"/>
     <Button
         android:id="@+id/rating_filter_button"

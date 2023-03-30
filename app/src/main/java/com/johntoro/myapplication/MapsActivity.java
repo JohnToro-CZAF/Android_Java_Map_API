@@ -483,7 +483,9 @@ public class MapsActivity extends AppCompatActivity implements
         FilterFragment filterFragment = FilterFragment.newInstance(results);
         //fragmentTransaction.add(filterFragment, "filter");
         fragmentTransaction.add(R.id.fragment_container_view, filterFragment);
-        //fragmentTransaction.commit();
+        fragmentTransaction.addToBackStack(null);
+
+       // fragmentTransaction.commit();
 
     }
     protected class FacilityDetailsContract extends ActivityResultContract<Bundle, Results> {
