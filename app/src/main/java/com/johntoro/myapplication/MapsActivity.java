@@ -61,6 +61,7 @@ import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.FetchPlaceResponse;
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.johntoro.myapplication.models.NearByResponse;
 import com.johntoro.myapplication.models.Results;
@@ -73,8 +74,10 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContract;
 import com.google.maps.android.SphericalUtil;
 
+
 import org.json.JSONArray;
 import org.json.JSONException;
+
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -105,11 +108,14 @@ public class MapsActivity extends AppCompatActivity implements
     private static final float DEFAULT_ZOOM = 15f;
     // endregion
     // region widgets
+    private BottomNavigationView bottomNavBar;
     private ViewAnimator viewAnimator;
     private BottomSheetBehavior bottomSheetBehavior;
     private RelativeLayout bottomSheet;
     private ProgressBar progressBar;
+
     private ImageView mGps, mInfo, mPlacePicker, mFavorite;
+
     private AppCompatButton mHospital, mRestaurant, mPetrol, mCarPark;
     private LinearLayout mFacilitiesLayout, mExitDirections;
     private GoogleMap gMap;
@@ -130,6 +136,7 @@ public class MapsActivity extends AppCompatActivity implements
     private android.location.Location searchedLocation;
     private List<Results> nearByFacilities;
     private Set<Results> favourites = new HashSet<Results>();
+    private String userEmail;
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
@@ -157,6 +164,8 @@ public class MapsActivity extends AppCompatActivity implements
     }
     @Override
     protected void onCreate (Bundle savedInstanceState) {
+        Intent intent = getIntent();
+        userEmail = intent.getStringExtra("email");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setSupportActionBar(findViewById(R.id.toolbar));
@@ -176,6 +185,7 @@ public class MapsActivity extends AppCompatActivity implements
         mFacilitiesLayout = findViewById(R.id.facilities_buttons_layout);
         bottomSheet = findViewById(R.id.bottom_sheet);
         bottomSheetBehavior=BottomSheetBehavior.from(bottomSheet);
+        bottomNavBar = findViewById(R.id.bottomNavigationView);
         initRecyclerView();
         getLocationPermissionAndInitialize();
         if (mLocationPermissionsGranted) {
@@ -183,21 +193,9 @@ public class MapsActivity extends AppCompatActivity implements
             initGps();
             initFavorite();
             initRetrieveFacilities();
+            initBottomNavBar();
         }
     }
-    // uncomment to add different map views
-    /*public void onNormalMap(View view) {
-        gMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-    }
-    public void onSatelliteMap(View view) {
-        gMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-    }
-    public void onTerrainMap(View view) {
-        gMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-    }
-    public void onHybridMap(View view) {
-        gMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-    }*/
     @Override
     public boolean onCreateOptionsMenu (@NonNull Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
@@ -212,6 +210,24 @@ public class MapsActivity extends AppCompatActivity implements
             return false;
         }
         return super.onOptionsItemSelected(item);
+    }
+    private void initBottomNavBar () {
+        bottomNavBar.setOnItemSelectedListener((MenuItem menuItem) -> {
+                int id = menuItem.getItemId();
+                Intent intent;
+                switch(id){
+                    case R.id.profile:
+                        intent = new Intent(MapsActivity.this, ProfileActivity.class);
+                        intent.putExtra("email", userEmail);
+                        startActivity(intent);
+                        break;
+                    case R.id.settings:
+                        intent = new Intent(MapsActivity.this, EmergencyContactsActivity.class);
+                        intent.putExtra("email", userEmail);
+                        startActivity(intent);
+                }
+                return true;
+            });
     }
     private void initFavorite () {
         mFavorite.setOnClickListener(v -> {

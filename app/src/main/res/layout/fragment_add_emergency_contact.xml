@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".AddEmergencyContactFragment">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="174dp"
+        android:layout_height="186dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/main_logo" />
+
+
+    <TextView
+        android:id="@+id/prompt_add_emergency_contacts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:fontFamily="@font/inter"
+        android:text="@string/emergency_contacts"
+        android:textColor="@color/red_dark"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+
+    <EditText
+        android:id="@+id/fullname_field"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginTop="25dp"
+        android:background="@drawable/text_input_button"
+        android:drawableStart="@drawable/ic_person_red"
+        android:drawablePadding="12dp"
+        android:ems="18"
+        android:hint="@string/fullname_field_text"
+        android:padding="10dp"
+        android:textColorHint="@color/grey_dark"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.49"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/phone_number_field"
+        android:autofillHints="name"
+        android:inputType="textPersonName" />
+
+    <EditText
+        android:id="@+id/phone_number_field"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginTop="25dp"
+        android:background="@drawable/text_input_button"
+        android:drawableStart="@drawable/ic_person_red"
+        android:drawablePadding="12dp"
+        android:ems="18"
+        android:hint="@string/mobile_field_text"
+        android:padding="10dp"
+        android:textColorHint="@color/grey_dark"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/email_field"
+        android:autofillHints="phone"
+        android:inputType="phone" />
+
+    <EditText
+        android:id="@+id/email_field"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginTop="25dp"
+        android:background="@drawable/text_input_button"
+        android:drawableStart="@drawable/ic_person_red"
+        android:drawablePadding="12dp"
+        android:ems="18"
+        android:hint="@string/email_field_text"
+        android:padding="10dp"
+        android:textColorHint="@color/grey_dark"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/prompt_add_emergency_contacts"
+        app:layout_constraintVertical_bias="0.05"
+        android:autofillHints="emailAddress"
+        android:inputType="textEmailAddress" />
+
+    <Button
+        android:id="@+id/add_contact_button"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:background="@drawable/login_button"
+        android:ems="18"
+        android:letterSpacing="0.01"
+        android:text="@string/add_contact"
+        android:textAllCaps="false"
+        android:textSize="16sp"
+        app:backgroundTint="@null"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/fullname_field" />
+
+    <Button
+        android:id="@+id/back_Button"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_gravity="left|top"
+        android:layout_margin="10dp"
+        android:background="@drawable/ic_back"
+        android:contentDescription="@string/press_to_go_back"
+        app:backgroundTint="@null"
+        app:layout_constraintBottom_toTopOf="@+id/prompt_add_emergency_contacts"
+        app:layout_constraintEnd_toStartOf="@+id/imageView"
+        app:layout_constraintHorizontal_bias="0.023"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
