@@ -73,6 +73,11 @@ import com.johntoro.myapplication.remotes.RetrofitBuilder;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContract;
 import com.google.maps.android.SphericalUtil;
+
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -108,7 +113,9 @@ public class MapsActivity extends AppCompatActivity implements
     private BottomSheetBehavior bottomSheetBehavior;
     private RelativeLayout bottomSheet;
     private ProgressBar progressBar;
-    private ImageView mGps, mFavorite;
+
+    private ImageView mGps, mInfo, mPlacePicker, mFavorite;
+
     private AppCompatButton mHospital, mRestaurant, mPetrol, mCarPark;
     private LinearLayout mFacilitiesLayout, mExitDirections;
     private GoogleMap gMap;
@@ -483,11 +490,20 @@ public class MapsActivity extends AppCompatActivity implements
         nearbyFacilitiesListFragment.setOnItemFavoriteClickListener(MapsActivity.this::changeFavorite);
         nearbyFacilitiesListFragment.setOnItemDetailsClickListener(MapsActivity.this::startFacilityDetails);
         nearbyFacilitiesListFragment.setIsItemFavorite(MapsActivity.this::isFavorite);
+
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container_view, nearbyFacilitiesListFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
+
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        FilterFragment filterFragment = FilterFragment.newInstance(results);
+        //fragmentTransaction.add(filterFragment, "filter");
+        fragmentTransaction.add(R.id.fragment_container_view, filterFragment);
+        fragmentTransaction.addToBackStack(null);
+
+       // fragmentTransaction.commit();
+
     }
     protected class FacilityDetailsContract extends ActivityResultContract<Bundle, Results> {
         @NonNull
