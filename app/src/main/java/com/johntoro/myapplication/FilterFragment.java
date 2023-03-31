@@ -37,7 +37,7 @@ public class FilterFragment extends Fragment {
     private AdapterView.OnItemClickListener onItemClickListener;
     private Button ratingbtn;
     private Button openingbtn;
-    private OnRatingSelectedListener mRatingListener;
+    private OnFilterSelectedListener mRatingListener;
     private List<Results> res;
 
     /**
@@ -75,8 +75,10 @@ public class FilterFragment extends Fragment {
         openingbtn = view.findViewById(R.id.is_open_button);
         ratingbtn.setOnClickListener(v -> {
             Log.d(TAG, "onClick: clicked rating button");
-            mRatingListener.onRatingSelected(true, false);
+            mRatingListener.onFilterSelected(res);
+
             FilterControl fc = new FilterControl(true, false);
+            Log.d(TAG, "Filter control created");
             List<Results> rescopy = new ArrayList<>(res);
             fc.sort(rescopy);
             NearbyFacilitiesListFragment nearbyFacilitiesListFragment = NearbyFacilitiesListFragment.newInstance(rescopy);
@@ -84,8 +86,10 @@ public class FilterFragment extends Fragment {
         });
         openingbtn.setOnClickListener(v -> {
             Log.d(TAG, "onClick: opening button");
-            mRatingListener.onRatingSelected(false, true);
+            mRatingListener.onFilterSelected( res);
+
             FilterControl fc = new FilterControl(false, true);
+            Log.d(TAG, "Filter control created");
             List<Results> rescopy = new ArrayList<>(res);
             fc.sort(rescopy);
             NearbyFacilitiesListFragment nearbyFacilitiesListFragment = NearbyFacilitiesListFragment.newInstance(rescopy);
@@ -93,10 +97,10 @@ public class FilterFragment extends Fragment {
         return view;
     }
 
-    public interface OnRatingSelectedListener{
-        void onRatingSelected(boolean rating, boolean opening);
+    public interface OnFilterSelectedListener{
+        void onFilterSelected(List<Results> res);
     }
-    public void setOnRatingSelectedListener(OnRatingSelectedListener listener){
+    public void setOnFilterSelectedListener(OnFilterSelectedListener listener){
         mRatingListener = listener;
     }
 }
