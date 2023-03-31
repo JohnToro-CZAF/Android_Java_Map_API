@@ -24,6 +24,8 @@ import android.view.ViewGroup;
 import com.johntoro.myapplication.databinding.FragmentEmergencyContactsBinding;
 import com.johntoro.myapplication.models.EmergencyContact;
 
+import java.util.Objects;
+
 public class EmergencyContactsFragment extends Fragment {
     private ContactAdapter adapter = new ContactAdapter();
     private FragmentEmergencyContactsBinding binding;
@@ -65,6 +67,7 @@ public class EmergencyContactsFragment extends Fragment {
         viewModel.getContact().observe(getViewLifecycleOwner(), new Observer<EmergencyContact>() {
             @Override
             public void onChanged(@Nullable EmergencyContact contact) {
+                Log.d("EmergencyContactsFragment", "Contact is " + contact.toString());
                 adapter.addContact(contact);
             }
         });
@@ -107,6 +110,6 @@ public class EmergencyContactsFragment extends Fragment {
 
     //return to previous
     public void goBack(){
-        startActivity(new Intent(getActivity(), MapsActivity.class));
+        requireActivity().finish();
     }
 }
