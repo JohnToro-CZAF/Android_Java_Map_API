@@ -6,6 +6,7 @@ import java.util.List;
 public class FilterControl {
     private boolean isActiveHours;
     private boolean isRating;
+
     public FilterControl(){
         this.isActiveHours = false;
         this.isRating = false;

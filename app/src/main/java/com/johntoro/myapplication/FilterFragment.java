@@ -33,6 +33,7 @@ public class FilterFragment extends Fragment {
 
     private static final String TAG = "FilterFragment";
 
+    protected static final String RESULTS_LIST = "res";
 
     private AdapterView.OnItemClickListener onItemClickListener;
     private Button ratingbtn;
@@ -79,20 +80,39 @@ public class FilterFragment extends Fragment {
 
             FilterControl fc = new FilterControl(true, false);
             Log.d(TAG, "Filter control created");
-            List<Results> rescopy = new ArrayList<>(res);
-            fc.sort(rescopy);
-            NearbyFacilitiesListFragment nearbyFacilitiesListFragment = NearbyFacilitiesListFragment.newInstance(rescopy);
+            List<Results> results = null;
+            if (getArguments().getSerializable(RESULTS_LIST) == null) {
+                Log.d(TAG, "passList: results is null");
+            } else {
+                results = (List<Results>) getArguments().getSerializable(RESULTS_LIST);
+                List<Results> rescopy = new ArrayList<>(results);
+                Log.d(TAG, String.valueOf(rescopy.size()));
+                Log.d(TAG, "before sort rating copy");
+                fc.sort(rescopy);
+                Log.d(TAG, "can i get here?");
+                NearbyFacilitiesListFragment nearbyFacilitiesListFragment = NearbyFacilitiesListFragment.newInstance(rescopy);
+            }
+
 
         });
         openingbtn.setOnClickListener(v -> {
             Log.d(TAG, "onClick: opening button");
-            mRatingListener.onFilterSelected( res);
+            mRatingListener.onFilterSelected(res);
 
             FilterControl fc = new FilterControl(false, true);
             Log.d(TAG, "Filter control created");
-            List<Results> rescopy = new ArrayList<>(res);
-            fc.sort(rescopy);
-            NearbyFacilitiesListFragment nearbyFacilitiesListFragment = NearbyFacilitiesListFragment.newInstance(rescopy);
+            List<Results> results = null;
+            if (getArguments().getSerializable(RESULTS_LIST) == null) {
+                Log.d(TAG, "passList: results is null");
+            } else {
+                results = (List<Results>) getArguments().getSerializable(RESULTS_LIST);
+                List<Results> rescopy = new ArrayList<>(results);
+                Log.d(TAG, String.valueOf(rescopy.size()));
+                Log.d(TAG, "before sort hour copy");
+                fc.sort(rescopy);
+                NearbyFacilitiesListFragment nearbyFacilitiesListFragment = NearbyFacilitiesListFragment.newInstance(rescopy);
+            }
+
         });
         return view;
     }
