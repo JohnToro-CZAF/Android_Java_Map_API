@@ -224,6 +224,7 @@ public class MapsActivity extends AppCompatActivity implements
                     case R.id.settings:
                         intent = new Intent(MapsActivity.this, EmergencyContactsActivity.class);
                         intent.putExtra("email", userEmail);
+                        Log.d("User Email", "On Click To emergency Contact: " + userEmail);
                         startActivity(intent);
                 }
                 return true;

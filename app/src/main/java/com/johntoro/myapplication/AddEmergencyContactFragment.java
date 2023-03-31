@@ -1,4 +1,5 @@
 package com.johntoro.myapplication;
+import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -7,6 +8,8 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,10 +24,13 @@ public class AddEmergencyContactFragment extends Fragment {
     private FragmentAddEmergencyContactBinding binding;
     private ProfileActivity profileActivity = new ProfileActivity();
     private ContactViewModel viewModel;
-
+    String userEmail;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Intent intent = getActivity().getIntent();
+        userEmail = intent.getStringExtra("email");
+        Log.d("AddEmergencyContact", "Email: " + userEmail);
     }
 
     @Override
@@ -80,7 +86,7 @@ public class AddEmergencyContactFragment extends Fragment {
                 }
 
                 EmergencyContact contact = new EmergencyContact();
-                contact.userEmail = ProfileActivity.getUserEmail();
+                contact.userEmail = userEmail;
                 contact.fullName = fullName;
                 contact.mobile = mobile;
                 contact.email = email;

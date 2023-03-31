@@ -14,6 +14,7 @@ import com.johntoro.myapplication.models.EmergencyContact;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHolder> {
     public List<EmergencyContact> contactList = new ArrayList<>();
@@ -51,16 +52,24 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
         //if contact doesn't already exist in list
         if (email == NULL) {
             Log.d("ContactAdapter", "email is null");
+        } else {
+            Log.d("ContactAdapter", "email is " + email);
         }
-        if(!contactList.contains(contact) && (contact.userEmail).equals(email)){
+        Log.d("ContactAdapter", "contact email is " + contact.userEmail);
+        Log.d("ContactAdapter", "contact name is " + contact.fullName);
+        if(!contactList.contains(contact) && !Objects.equals(contact.userEmail, null) && (contact.userEmail).equals(email)){
             contactList.add(contact);
         }else{
-            int index = contactList.indexOf(contact);
-            //if contact deleted, remove from list
-            if(contact.isDeleted){
-                contactList.remove(index);
-            }else{
-                contactList.set(index,contact);
+            try {
+                int index = contactList.indexOf(contact);
+                //if contact deleted, remove from list
+                if(contact.isDeleted){
+                    contactList.remove(index);
+                }else{
+                    contactList.set(index,contact);
+                }
+            }catch (Exception e){
+                e.printStackTrace();
             }
         }
         notifyDataSetChanged();

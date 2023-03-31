@@ -112,7 +112,7 @@ public class ProfileActivity extends AppCompatActivity{
         });
     }
     private void goBack() {
-        startActivity(new Intent(getApplicationContext(), MapsActivity.class));
+        finish();
     }
     public static String getUserEmail(){
         return userEmail;
