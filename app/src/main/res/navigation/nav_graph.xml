@@ -8,7 +8,7 @@
 
     <fragment
         android:id="@+id/emergencyContactsFragment"
-        android:name="com.johntoro.myapplication.EmergencyContactsFragment"
+        android:name="com.johntoro.myapplication.views.EmergencyContactsFragment"
         android:label="fragment_emergency_contacts"
         tools:layout="@layout/fragment_emergency_contacts" />
 </navigation>

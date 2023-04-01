@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ProfileActivity">
+    tools:context=".views.ProfileActivity">
 
     <TextView
         android:id="@+id/ProfileHeader"
@@ -102,17 +102,18 @@
         android:layout_marginTop="20dp"
         android:background="@drawable/login_button"
         android:ems="14"
-        android:textSize="17sp"
         android:letterSpacing="0.01"
         android:text="@string/logout_button_text"
         android:textAllCaps="false"
+        android:textSize="17sp"
         android:textStyle="bold"
+        app:backgroundTint="@null"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
 
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.292" />
+        app:layout_constraintVertical_bias="0.329" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

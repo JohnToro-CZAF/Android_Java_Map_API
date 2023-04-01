@@ -7,5 +7,5 @@
     android:clipToPadding="false"
     android:paddingTop="@dimen/list_item_spacing_half"
     android:paddingBottom="@dimen/list_item_spacing_half"
-    tools:context=".NearbyFacilitiesListFragment"
+    tools:context=".views.NearbyFacilitiesListFragment"
     tools:listitem="@layout/fragment_nearby_facilities_list_list_item" />
