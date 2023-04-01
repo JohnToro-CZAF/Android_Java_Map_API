@@ -1,12 +1,17 @@
 package com.johntoro.myapplication.views;
 
+
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 
 import com.johntoro.myapplication.R;
@@ -25,16 +30,14 @@ import java.util.List;
  */
 public class FilterFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private static final String TAG = "FilterFragment";
+
 
     private AdapterView.OnItemClickListener onItemClickListener;
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-    private Spinner spinner;
+    private Button ratingbtn;
+    private Button openingbtn;
+    private OnRatingSelectedListener mRatingListener;
+    private List<Results> res;
 
     /**
      * Use this factory method to create a new instance of
@@ -52,40 +55,47 @@ public class FilterFragment extends Fragment {
         return fragment;
     }
 
-    public FilterFragment() {
-        // Required empty public constructor
-    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+        assert getArguments() != null;
+        getArguments().getSerializable("res");
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_filter, container, false);
 
-        View rootView = inflater.inflate(R.layout.fragment_filter, container, false);
-        //spinner = (Spinner) rootView.findViewById(R.id.filter_spinner);
-        // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
-                R.array.filter_array, android.R.layout.simple_spinner_item);
-        // Specify the layout to use when the list of choices appears
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // Apply the adapter to the spinner
-        spinner.setAdapter(adapter);
-        return rootView;
-    }
-    public void retrieveFacilitiesFragment(List<Results> res){
-        FilterControl fc = new FilterControl();
-        List<Results> rescopy = new ArrayList<>(res);
-        fc.sort(rescopy);
-        NearbyFacilitiesListFragment nearbyFacilitiesListFragment = NearbyFacilitiesListFragment.newInstance(rescopy);
+        ratingbtn = view.findViewById(R.id.rating_filter_button);
+        openingbtn = view.findViewById(R.id.is_open_button);
+        ratingbtn.setOnClickListener(v -> {
+            Log.d(TAG, "onClick: clicked rating button");
+            mRatingListener.onRatingSelected(true, false);
+            FilterControl fc = new FilterControl(true, false);
+            List<Results> rescopy = new ArrayList<>(res);
+            fc.sort(rescopy);
+            NearbyFacilitiesListFragment nearbyFacilitiesListFragment = NearbyFacilitiesListFragment.newInstance(rescopy);
+
+        });
+        openingbtn.setOnClickListener(v -> {
+            Log.d(TAG, "onClick: opening button");
+            mRatingListener.onRatingSelected(false, true);
+            FilterControl fc = new FilterControl(false, true);
+            List<Results> rescopy = new ArrayList<>(res);
+            fc.sort(rescopy);
+            NearbyFacilitiesListFragment nearbyFacilitiesListFragment = NearbyFacilitiesListFragment.newInstance(rescopy);
+        });
+        return view;
     }
 
+    public interface OnRatingSelectedListener{
+        void onRatingSelected(boolean rating, boolean opening);
+    }
+    public void setOnRatingSelectedListener(OnRatingSelectedListener listener){
+        mRatingListener = listener;
+    }
 }
