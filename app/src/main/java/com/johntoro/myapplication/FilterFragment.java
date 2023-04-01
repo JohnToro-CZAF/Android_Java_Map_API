@@ -89,7 +89,8 @@ public class FilterFragment extends Fragment {
                 Log.d(TAG, String.valueOf(rescopy.size()));
                 Log.d(TAG, "before sort rating copy");
                 fc.sort(rescopy);
-                Log.d(TAG, "can i get here?");
+                Log.d(TAG, "can i get here Rating?");
+                Log.d(TAG, rescopy.toString());
                 NearbyFacilitiesListFragment nearbyFacilitiesListFragment = NearbyFacilitiesListFragment.newInstance(rescopy);
             }
 
@@ -110,6 +111,7 @@ public class FilterFragment extends Fragment {
                 Log.d(TAG, String.valueOf(rescopy.size()));
                 Log.d(TAG, "before sort hour copy");
                 fc.sort(rescopy);
+                Log.d(TAG, "can i get here? Hour");
                 NearbyFacilitiesListFragment nearbyFacilitiesListFragment = NearbyFacilitiesListFragment.newInstance(rescopy);
             }
 
