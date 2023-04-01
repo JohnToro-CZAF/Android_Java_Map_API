@@ -509,7 +509,7 @@ public class MapsActivity extends AppCompatActivity implements
     private void resultsFilter(List<Results> results) {
         // Attach this method to fragment's onItemDetailsClickListener
         Bundle bundle = new Bundle();
-        bundle.putSerializable("results", (Serializable) nearByFacilities);
+        bundle.putSerializable(FacilityDetailsActivity.FACILITY_DETAILS, (Serializable) nearByFacilities);
         facilityDetailsLauncher.launch(bundle);
     }
 

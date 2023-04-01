@@ -1,0 +1,101 @@
+{
+  "project_info": {
+    "project_number": "1075556160577",
+    "firebase_url": "https://sc2006app-e510e-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "sc2006app-e510e",
+    "storage_bucket": "sc2006app-e510e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1075556160577:android:a2fece918693b59d9162c0",
+        "android_client_info": {
+          "package_name": "com.example.sc2006"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1075556160577-d5k9300kcfr52drqka6h98gij36vpea8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.sc2006",
+            "certificate_hash": "fa0d7057f0feeaba43c089c8cbe11026da920e91"
+          }
+        },
+        {
+          "client_id": "1075556160577-rq4ph0vbghm3605l9dqicik7e1vdh8go.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.sc2006",
+            "certificate_hash": "7ee675b6dff120ea8a713f725ae96afc00d6c1e9"
+          }
+        },
+        {
+          "client_id": "1075556160577-tduqotabblpf3rdug06iaorp1nq5ij4r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRhKnW6H6SR0PcF2wQiM8bhTNvZr1bF6Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1075556160577-pqvkqmlvpsvp25ipsk30ltqok3tkbm06.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1075556160577:android:94bbfbe683a6abab9162c0",
+        "android_client_info": {
+          "package_name": "com.johntoro.myapplication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1075556160577-3rfv7e9di3nnrpdokskhde9dn1q7iur0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.johntoro.myapplication",
+            "certificate_hash": "fa0d7057f0feeaba43c089c8cbe11026da920e91"
+          }
+        },
+        {
+          "client_id": "1075556160577-ko72hv6j3v0q0fvsq3t1r4bhik35iv0s.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.johntoro.myapplication",
+            "certificate_hash": "7ee675b6dff120ea8a713f725ae96afc00d6c1e9"
+          }
+        },
+        {
+          "client_id": "1075556160577-tduqotabblpf3rdug06iaorp1nq5ij4r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRhKnW6H6SR0PcF2wQiM8bhTNvZr1bF6Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1075556160577-pqvkqmlvpsvp25ipsk30ltqok3tkbm06.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -61,6 +61,8 @@ public class NearbyFacilitiesListFragment extends Fragment {
             recyclerView.setAdapter(new ItemAdapter(results));
         }
     }
+
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();

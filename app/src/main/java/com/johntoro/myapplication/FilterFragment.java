@@ -14,6 +14,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.johntoro.myapplication.models.FilterControl;
 import com.johntoro.myapplication.models.Results;
 
@@ -32,7 +33,7 @@ import java.util.stream.Collectors;
 public class FilterFragment extends Fragment {
 
     private static final String TAG = "FilterFragment";
-
+    private BottomSheetBehavior bottomSheetBehavior;
     protected static final String RESULTS_LIST = "res";
 
     private AdapterView.OnItemClickListener onItemClickListener;
@@ -92,7 +93,9 @@ public class FilterFragment extends Fragment {
                     Log.d(TAG, String.valueOf(r.getRating()));
                 }
                 NearbyFacilitiesListFragment nearbyFacilitiesListFragment = NearbyFacilitiesListFragment.newInstance(rescopy);
-
+                Bundle bundle = new Bundle();
+                bundle.putSerializable(FacilityDetailsActivity.FACILITY_DETAILS, (Serializable) rescopy);
+                nearbyFacilitiesListFragment.setArguments(bundle);
                 Log.d(TAG, "can i reach here?");
             }
 
