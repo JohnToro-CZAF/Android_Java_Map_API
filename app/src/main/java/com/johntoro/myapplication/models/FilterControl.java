@@ -28,9 +28,19 @@ public class FilterControl {
     }
 
     public void sort(List<Results> res){
-        Log.d(TAG, String.valueOf(res));
         if (isActiveHours){
-            //res.sort(Comparator.comparing(Results::getOpeningHours));
+            res.removeIf(result -> result.getOpeningHours() == null || !result.getOpeningHours().getOpenNow());
+            res.sort((r1, r2) -> {
+                boolean openNow1 = r1.getOpeningHours().getOpenNow();
+                boolean openNow2 = r2.getOpeningHours().getOpenNow();
+                if (openNow1 && openNow2) {
+                    return 0;
+                } else if (openNow1) {
+                    return -1;
+                } else {
+                    return 1;
+                }
+            });
             isActiveHours = false;
         }
         if (isRating){

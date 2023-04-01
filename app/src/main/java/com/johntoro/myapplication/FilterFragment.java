@@ -86,12 +86,14 @@ public class FilterFragment extends Fragment {
             } else {
                 results = (List<Results>) getArguments().getSerializable(RESULTS_LIST);
                 List<Results> rescopy = new ArrayList<>(results);
-                Log.d(TAG, String.valueOf(rescopy.size()));
-                Log.d(TAG, "before sort rating copy");
                 fc.sort(rescopy);
-                Log.d(TAG, "can i get here Rating?");
-                Log.d(TAG, rescopy.toString());
+                Log.d(TAG, "rescopy sorting done for rating");
+                for (Results r: rescopy){
+                    Log.d(TAG, String.valueOf(r.getRating()));
+                }
                 NearbyFacilitiesListFragment nearbyFacilitiesListFragment = NearbyFacilitiesListFragment.newInstance(rescopy);
+
+                Log.d(TAG, "can i reach here?");
             }
 
 
@@ -108,11 +110,13 @@ public class FilterFragment extends Fragment {
             } else {
                 results = (List<Results>) getArguments().getSerializable(RESULTS_LIST);
                 List<Results> rescopy = new ArrayList<>(results);
-                Log.d(TAG, String.valueOf(rescopy.size()));
-                Log.d(TAG, "before sort hour copy");
                 fc.sort(rescopy);
-                Log.d(TAG, "can i get here? Hour");
+                Log.d(TAG, "rescopy sorting done for opening hr");
+                for (Results r: rescopy){
+                    Log.d(TAG, String.valueOf(r.getOpeningHours().getOpenNow()));
+                }
                 NearbyFacilitiesListFragment nearbyFacilitiesListFragment = NearbyFacilitiesListFragment.newInstance(rescopy);
+                Log.d(TAG, "can i reach here?");
             }
 
         });
