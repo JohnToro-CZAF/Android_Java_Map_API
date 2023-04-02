@@ -99,6 +99,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.sql.Array;
@@ -530,7 +531,7 @@ public class MapsActivity extends AppCompatActivity implements
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }
-    private void getNearByFacilitiesListFragment (List<Results> results){
+    private void getNearByFacilitiesListFragment (List<Results> results) {
         isNearByFacilitiesListFragmentRetrieved = true;
         createMarkers(results);
         moveCamera(results);
@@ -545,6 +546,7 @@ public class MapsActivity extends AppCompatActivity implements
         fragmentTransaction.commit();
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
+
     protected class FacilityDetailsContract extends ActivityResultContract<Bundle, Results> {
         @NonNull
         public Intent createIntent(@NonNull Context context, Bundle input) {
@@ -631,6 +633,8 @@ public class MapsActivity extends AppCompatActivity implements
         bundle.putSerializable(FacilityDetailsActivity.FACILITY_DETAILS, results);
         facilityDetailsLauncher.launch(bundle);
     }
+
+
     private void createMarkers (List<Results> nearByFacilities) {
         if (searchedLocation == null) {
             searchedLocation = currentLocation;
