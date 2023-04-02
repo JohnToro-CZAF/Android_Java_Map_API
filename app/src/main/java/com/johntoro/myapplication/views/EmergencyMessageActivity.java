@@ -123,7 +123,6 @@ public class EmergencyMessageActivity extends AppCompatActivity {
     }
 
     private void hangUpCall() {
-        Intent intent = new Intent(EmergencyMessageActivity.this, MapsActivity.class);
-        startActivity(intent);
+        finish();
     }
 }
