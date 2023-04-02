@@ -62,7 +62,8 @@ public class EmergencyMessageActivity extends AppCompatActivity {
                     EmergencyContact contact = postSnapshot.getValue(EmergencyContact.class);
                     Log.d("ContactList ", "Adding Contact");
                     contactsList.add(contact);
-                    sendEmergencyMessage(contact);
+                    if(contact != null)
+                        sendEmergencyMessage(contact);
                 }
             }
             @Override
