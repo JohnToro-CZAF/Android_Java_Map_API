@@ -40,6 +40,8 @@ public class EmergencyMessageActivity extends AppCompatActivity {
     private String longi;
     private Button hangUp;
 
+    private DatabaseReference dbcontacts;
+
     private static final int PERMISSION_RQST_SEND = 0;
 
     @Override
@@ -51,8 +53,7 @@ public class EmergencyMessageActivity extends AppCompatActivity {
         lat = getIntent().getStringExtra("lat");
         longi = getIntent().getStringExtra("long");
 
-        //DatabaseReference dbcontacts = FirebaseDatabase.getInstance("https://sc2006app-e510e-default-rtdb.asia-southeast1.firebasedatabase.app").getReference(Constants.NODE_CONTACTS);
-        DatabaseReference dbcontacts = FirebaseDatabase.getInstance(BuildConfig.DATABASE_URL).getReference(Constants.NODE_CONTACTS);
+        dbcontacts = FirebaseDatabase.getInstance(BuildConfig.DATABASE_URL).getReference(Constants.NODE_CONTACTS);
         contactsList = new ArrayList<>();
 
         dbcontacts.addValueEventListener(new ValueEventListener() {
@@ -126,6 +127,8 @@ public class EmergencyMessageActivity extends AppCompatActivity {
     private void hangUpCall() {
         Intent intent = new Intent(EmergencyMessageActivity.this, MapsActivity.class);
         intent.putExtra("email", email);
+        dbcontacts = null;
         startActivity(intent);
     }
+
 }
