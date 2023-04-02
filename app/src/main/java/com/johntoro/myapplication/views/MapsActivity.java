@@ -158,9 +158,6 @@ public class MapsActivity extends AppCompatActivity implements
     private String phoneNo;
     private ArrayList<EmergencyContact> contactsList;
 
-
-
-
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         LatLng singapore = new LatLng(1.290270, 103.851959);
@@ -193,6 +190,7 @@ public class MapsActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setSupportActionBar(findViewById(R.id.toolbar));
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
         progressBar = findViewById(R.id.progress_bar);
         viewAnimator = findViewById(R.id.view_animator);
         if (!Places.isInitialized()) {
@@ -219,8 +217,6 @@ public class MapsActivity extends AppCompatActivity implements
             initRetrieveFacilities();
             initBottomNavBar();
         }
-
-
     }
     @Override
     public boolean onCreateOptionsMenu (@NonNull Menu menu) {
@@ -262,14 +258,10 @@ public class MapsActivity extends AppCompatActivity implements
                         Log.d("User Email", "On Click To emergency message: " + userEmail);
                         startActivity(intent);
                         break;
-
-
                 }
                 return true;
             });
     }
-
-
 
     private void initFavorite () {
         mFavorite.setOnClickListener(v -> {
