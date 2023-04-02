@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".MapsActivity">
+    tools:context=".views.MapsActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -55,6 +55,17 @@
                     android:background="#FFFFFF"
                     />
             </ViewAnimator>
+
+            <LinearLayout
+                android:id="@+id/exit_direction"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="120dp"
+                android:layout_marginEnd="10dp"
+                android:orientation="horizontal"
+                android:elevation="10dp">
+
+            </LinearLayout>
             <androidx.fragment.app.FragmentContainerView xmlns:map="http://schemas.android.com/apk/res-auto"
                 android:name="com.google.android.gms.maps.SupportMapFragment"
                 android:id="@+id/mapView"
@@ -78,12 +89,12 @@
             android:scrollbars="none"
             android:measureAllChildren="false"
             android:fillViewport="true"
+            android:layout_marginTop="65dp"
             android:layout_alignParentTop="true">
             <LinearLayout
                 android:id="@+id/facilities_buttons_layout"
                 android:layout_width="match_parent"
                 android:layout_height="30dp"
-                android:layout_marginTop="65dp"
                 android:layout_marginEnd="10dp"
                 android:layoutDirection="ltr">
 
@@ -123,10 +134,10 @@
                     android:background="@drawable/round_button"
                     android:drawableLeft="@drawable/custom_ic_petrostation"
                     android:drawablePadding="5dp"
-                    android:textColor="#FFFFFF"
                     android:paddingStart="@dimen/list_item_spacing_quarter"
                     android:paddingEnd="@dimen/list_item_spacing_quarter"
                     android:text="@string/petrol_station"
+                    android:textColor="#FFFFFF"
                     android:textSize="@dimen/list_item_text_size" />
 
                 <androidx.appcompat.widget.AppCompatButton
@@ -145,15 +156,18 @@
 
             </LinearLayout>
         </HorizontalScrollView>
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="100dp"
+            android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
-            android:id="@+id/exit_direction"
-            android:orientation="horizontal">
+            android:layout_marginTop="100dp">
+            <androidx.fragment.app.FragmentContainerView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/filter_fragment_container_view"/>
+        </RelativeLayout>
 
-        </LinearLayout>
         <!--        android:layout_alignParentStart="true"/>-->
         <ImageView
             android:layout_width="40dp"

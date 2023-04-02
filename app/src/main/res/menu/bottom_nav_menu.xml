@@ -6,7 +6,7 @@
         android:icon="@drawable/ic_person_white"/>
     <item
         android:id="@+id/emergency_button"
-        android:title="Emergency Button"
+        android:title="@string/emergency_button"
         android:icon="@drawable/ic_emergency"/>
     <item
         android:id="@+id/settings"

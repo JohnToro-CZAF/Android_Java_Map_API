@@ -2,7 +2,6 @@ package com.johntoro.myapplication.models;
 
 import android.util.Log;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -20,17 +19,23 @@ public class FilterControl {
     }
     // when click on filter by rating, set this to true
     public void setActiveHours(boolean activeHours) {
-        isActiveHours = activeHours;
+        this.isActiveHours = activeHours;
     }
-
     public void setRating(boolean rating) {
-        isRating = rating;
+        this.isRating = rating;
+    }
+    public void toggleActiveHours(){
+        this.isActiveHours = !this.isActiveHours;
+    }
+    public void toggleRating(){
+        this.isRating = !this.isRating;
     }
 
-    public void sort(List<Results> res){
+    public List<Results> sort(List<Results> nearByPlaces){
+        Log.d("FilterControl", "sort: " + nearByPlaces.toString());
         if (isActiveHours){
-            res.removeIf(result -> result.getOpeningHours() == null || !result.getOpeningHours().getOpenNow());
-            res.sort((r1, r2) -> {
+            nearByPlaces.removeIf(result -> result.getOpeningHours() == null || !result.getOpeningHours().getOpenNow());
+            nearByPlaces.sort((r1, r2) -> {
                 boolean openNow1 = r1.getOpeningHours().getOpenNow();
                 boolean openNow2 = r2.getOpeningHours().getOpenNow();
                 if (openNow1 && openNow2) {
@@ -44,7 +49,7 @@ public class FilterControl {
             isActiveHours = false;
         }
         if (isRating){
-            res.sort((r1, r2) -> {
+            nearByPlaces.sort((r1, r2) -> {
                 String rating1 = r1.getRating();
                 String rating2 = r2.getRating();
                 if (rating1 == null && rating2 == null) {
@@ -59,8 +64,15 @@ public class FilterControl {
                     return Float.compare(floatRating2, floatRating1);
                 }
             });
-            isRating = false;
+            isActiveHours = false;
         }
+        Log.d("FilterControl", "sort: " + nearByPlaces.toString());
+        return nearByPlaces;
     }
-
+    public boolean getActiveHours(){
+        return this.isActiveHours;
+    }
+    public boolean getRating(){
+        return this.isRating;
+    }
 }
