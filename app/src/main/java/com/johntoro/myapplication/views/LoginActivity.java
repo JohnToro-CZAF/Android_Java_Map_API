@@ -140,6 +140,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 goToHome(email);
             } catch (ApiException e) {
                 Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
+                Log.d("Google Sign In Error", Integer.toString(e.getStatusCode()));
             }
         }
     }
