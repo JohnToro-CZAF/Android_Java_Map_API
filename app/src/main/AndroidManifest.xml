@@ -47,6 +47,7 @@
             android:name=".views.EmergencyMessageActivity"
             android:exported="false"
             android:parentActivityName=".views.MapsActivity" />
+        <activity android:name=".views.ForgotPasswordActivity"/>
     </application>
 
 </manifest>

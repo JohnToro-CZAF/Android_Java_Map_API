@@ -99,6 +99,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.sql.Array;
@@ -157,9 +158,6 @@ public class MapsActivity extends AppCompatActivity implements
     private String phoneNo;
     private ArrayList<EmergencyContact> contactsList;
 
-
-
-
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         LatLng singapore = new LatLng(1.290270, 103.851959);
@@ -193,6 +191,7 @@ public class MapsActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setSupportActionBar(findViewById(R.id.toolbar));
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
         progressBar = findViewById(R.id.progress_bar);
         viewAnimator = findViewById(R.id.view_animator);
         if (!Places.isInitialized()) {
@@ -219,8 +218,6 @@ public class MapsActivity extends AppCompatActivity implements
             initRetrieveFacilities();
             initBottomNavBar();
         }
-
-
     }
     @Override
     public boolean onCreateOptionsMenu (@NonNull Menu menu) {
@@ -266,8 +263,6 @@ public class MapsActivity extends AppCompatActivity implements
                 return true;
             });
     }
-
-
 
     private void initFavorite () {
         mFavorite.setOnClickListener(v -> {
@@ -529,7 +524,7 @@ public class MapsActivity extends AppCompatActivity implements
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }
-    private void getNearByFacilitiesListFragment (List<Results> results){
+    private void getNearByFacilitiesListFragment (List<Results> results) {
         isNearByFacilitiesListFragmentRetrieved = true;
         createMarkers(results);
         moveCamera(results);
@@ -544,6 +539,7 @@ public class MapsActivity extends AppCompatActivity implements
         fragmentTransaction.commit();
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
+
     protected class FacilityDetailsContract extends ActivityResultContract<Bundle, Results> {
         @NonNull
         public Intent createIntent(@NonNull Context context, Bundle input) {
@@ -630,6 +626,8 @@ public class MapsActivity extends AppCompatActivity implements
         bundle.putSerializable(FacilityDetailsActivity.FACILITY_DETAILS, results);
         facilityDetailsLauncher.launch(bundle);
     }
+
+
     private void createMarkers (List<Results> nearByFacilities) {
         if (searchedLocation == null) {
             searchedLocation = currentLocation;

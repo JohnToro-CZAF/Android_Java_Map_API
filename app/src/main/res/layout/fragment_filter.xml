@@ -5,13 +5,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal"
     android:paddingStart='4dp'
-    tools:context=".FilterFragment">
+    tools:context="views.FilterFragment">
     <Button
         android:id="@+id/is_open_button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.198"
+        app:itemBackground="@color/red"
+        app:itemIconTint="@color/white"
+        app:itemTextColor="@color/white"
+        android:backgroundTint="#E24752"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="10dp"
@@ -24,6 +28,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.198"
+        app:itemBackground="@color/red"
+        app:itemIconTint="@color/white"
+        app:itemTextColor="@color/white"
+        android:backgroundTint="#E24752"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/rating_view" />
