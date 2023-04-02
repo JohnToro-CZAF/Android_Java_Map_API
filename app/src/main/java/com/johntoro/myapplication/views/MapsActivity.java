@@ -1,4 +1,4 @@
-package com.johntoro.myapplication;
+package com.johntoro.myapplication.views;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
