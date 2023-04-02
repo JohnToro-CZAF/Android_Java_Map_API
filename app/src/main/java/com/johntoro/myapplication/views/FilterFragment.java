@@ -3,50 +3,26 @@ package com.johntoro.myapplication.views;
 
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.Spinner;
 
-import com.johntoro.myapplication.R;
 import com.johntoro.myapplication.models.FilterControl;
 import com.johntoro.myapplication.models.Results;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link FilterFragment#newInstance} factory method to
- * create an instance of this fragment.
- *
- */
 public class FilterFragment extends Fragment {
 
     private static final String TAG = "FilterFragment";
-
-
-    private AdapterView.OnItemClickListener onItemClickListener;
+    private OnFilterChangeListener onFilterChangeListener;
     private Button ratingbtn;
     private Button openingbtn;
-    private OnRatingSelectedListener mRatingListener;
     private List<Results> res;
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     *
-     * @return A new instance of fragment FilterFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static FilterFragment newInstance(List<Results> res) {
         FilterFragment fragment = new FilterFragment();
         Bundle args = new Bundle();
@@ -54,14 +30,11 @@ public class FilterFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
-
-
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         assert getArguments() != null;
-        getArguments().getSerializable("res");
+        res = (List<Results>) getArguments().getSerializable("res");
     }
 
     @Override
@@ -69,33 +42,35 @@ public class FilterFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_filter, container, false);
-
+        FilterControl filterControl = new FilterControl(false, false);
         ratingbtn = view.findViewById(R.id.rating_filter_button);
         openingbtn = view.findViewById(R.id.is_open_button);
         ratingbtn.setOnClickListener(v -> {
             Log.d(TAG, "onClick: clicked rating button");
-            mRatingListener.onRatingSelected(true, false);
-            FilterControl fc = new FilterControl(true, false);
-            List<Results> rescopy = new ArrayList<>(res);
-            fc.sort(rescopy);
-            NearbyFacilitiesListFragment nearbyFacilitiesListFragment = NearbyFacilitiesListFragment.newInstance(rescopy);
-
+            filterControl.toggleRating();
+            if (filterControl.getRating()){
+                List<Results> sorted = filterControl.sort(res);
+                onFilterChangeListener.onFilterChange(sorted);
+            } else {
+                onFilterChangeListener.onFilterChange(res);
+            }
         });
         openingbtn.setOnClickListener(v -> {
             Log.d(TAG, "onClick: opening button");
-            mRatingListener.onRatingSelected(false, true);
-            FilterControl fc = new FilterControl(false, true);
-            List<Results> rescopy = new ArrayList<>(res);
-            fc.sort(rescopy);
-            NearbyFacilitiesListFragment nearbyFacilitiesListFragment = NearbyFacilitiesListFragment.newInstance(rescopy);
+            filterControl.toggleActiveHours();
+            if (filterControl.getActiveHours()) {
+                List<Results> sorted = filterControl.sort(res);
+                onFilterChangeListener.onFilterChange(sorted);
+            } else {
+                onFilterChangeListener.onFilterChange(res);
+            }
         });
         return view;
     }
-
-    public interface OnRatingSelectedListener{
-        void onRatingSelected(boolean rating, boolean opening);
+    interface OnFilterChangeListener {
+        void onFilterChange(List<Results> res);
     }
-    public void setOnRatingSelectedListener(OnRatingSelectedListener listener){
-        mRatingListener = listener;
+    public void setOnFilterChangeListener(OnFilterChangeListener listener) {
+        this.onFilterChangeListener = listener;
     }
 }

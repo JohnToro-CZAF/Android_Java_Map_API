@@ -4,33 +4,39 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
+
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="3dp"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
+        android:layout_marginLeft="20dp"
         android:layout_marginTop="3dp"
-        app:cardCornerRadius="1dp">
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="3dp"
+        app:cardBackgroundColor="@color/red"
+        app:cardCornerRadius="30dp"
+        app:cardElevation="10dp"
+        app:cardMaxElevation="0dp"
+        app:cardPreventCornerOverlap="true">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:layout_weight='1'>
 
             <LinearLayout
                 android:layout_width="50dp"
                 android:layout_height="match_parent"
-                android:background="#f5f5f5"
                 android:gravity="center">
 
                 <ImageView
                     android:id="@+id/placeImageView"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:src="@drawable/ic_map"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:layout_gravity="center"
-                    android:padding="5dp" />
-
+                    android:padding="5dp"
+                    android:background="@drawable/ic_location"
+                    android:foreground="?android:attr/selectableItemBackground"/>
             </LinearLayout>
 
             <LinearLayout
@@ -45,6 +51,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Place Name"
+                    android:textColor="@color/white"
                     android:textSize="16sp" />
 
                 <LinearLayout
@@ -65,6 +72,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
+                        android:textColor="@color/white"
                         android:text="Address"
                         android:textSize="13sp" />
 
@@ -75,29 +83,38 @@
             <LinearLayout
                 android:layout_width="50dp"
                 android:layout_height="match_parent"
-                android:background="#f5f5f5"
                 android:gravity="center">
 
                 <com.github.ivbaranov.mfb.MaterialFavoriteButton
-                    android:layout_width="wrap_content"
                     android:id="@+id/favoriteButton"
-                    android:layout_height="wrap_content" />
+                    android:layout_width="34dp"
+                    android:layout_height="35dp"
+                    android:foreground="?android:attr/selectableItemBackground"/>
 
             </LinearLayout>
-
             <LinearLayout
-                android:id="@+id/details"
+                android:id="@+id/phone"
+                android:layout_width="2dp"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/white" />
+            </LinearLayout>
+            <LinearLayout
                 android:layout_width="70dp"
                 android:layout_height="match_parent"
-                android:background="#f5f5f5"
                 android:orientation="vertical">
-
-                <TextView
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/details"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:text="Details"
-                    android:textSize="16sp" />
+                    android:textColor="@color/white"
+                    android:background="@drawable/login_button"
+                    android:textSize="16sp"/>
 
             </LinearLayout>
 
