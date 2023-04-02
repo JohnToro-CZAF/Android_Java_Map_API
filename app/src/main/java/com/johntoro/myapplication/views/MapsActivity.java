@@ -187,6 +187,7 @@ public class MapsActivity extends AppCompatActivity implements
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         Intent intent = getIntent();
+
         userEmail = intent.getStringExtra("email");
 
         super.onCreate(savedInstanceState);
@@ -256,13 +257,11 @@ public class MapsActivity extends AppCompatActivity implements
                     case R.id.emergency_button:
                         intent = new Intent(MapsActivity.this, EmergencyMessageActivity.class);
                         intent.putExtra("email", userEmail);
-                        intent.putExtra("lat", currentLocation.getLatitude());
-                        intent.putExtra("long", currentLocation.getLongitude());
+                        intent.putExtra("lat", String.valueOf(currentLocation.getLatitude()));
+                        intent.putExtra("long", String.valueOf(currentLocation.getLongitude()));
                         Log.d("User Email", "On Click To emergency message: " + userEmail);
                         startActivity(intent);
                         break;
-
-
                 }
                 return true;
             });
