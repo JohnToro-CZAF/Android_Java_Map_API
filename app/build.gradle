@@ -3,27 +3,23 @@ plugins {
     id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
     id 'androidx.navigation.safeargs'
     id 'com.google.gms.google-services'
-
 }
 
 android {
     namespace 'com.johntoro.myapplication'
     compileSdk 33
-
     defaultConfig {
         applicationId "com.johntoro.myapplication"
         minSdk 24
         targetSdk 33
         versionCode 1
         versionName "1.0"
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField("String", "MAPS_API_KEY", "xxx")
         buildConfigField("String", "DATABASE_URL", "yyy")
 
     }
-
     buildTypes {
         release {
             minifyEnabled false
@@ -40,14 +36,12 @@ android {
 }
 
 dependencies {
-
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.8.0'
     // Firebase:
     implementation 'com.google.firebase:firebase-auth:21.1.0'
     implementation 'com.google.firebase:firebase-database:20.1.0'
     implementation 'com.google.firebase:firebase-auth'
-    implementation 'com.google.firebase:firebase-analytics'
     implementation 'androidx.navigation:navigation-fragment:2.5.3'
     implementation 'androidx.navigation:navigation-ui:2.5.3'
     implementation 'androidx.databinding:databinding-runtime:7.4.2'
