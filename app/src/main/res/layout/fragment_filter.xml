@@ -1,4 +1,3 @@
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -6,9 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal"
     android:paddingStart='4dp'
-
     tools:context=".FilterFragment">
-
     <Button
         android:id="@+id/is_open_button"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -30,5 +27,4 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/rating_view" />
-
 </LinearLayout>

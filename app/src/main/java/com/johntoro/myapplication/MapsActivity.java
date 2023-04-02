@@ -115,7 +115,7 @@ public class MapsActivity extends AppCompatActivity implements
     private ProgressBar progressBar;
 
     private ImageView mGps, mInfo, mPlacePicker, mFavorite;
-
+    private FilterFragment filterFragment;
     private AppCompatButton mHospital, mRestaurant, mPetrol, mCarPark;
     private LinearLayout mFacilitiesLayout, mExitDirections;
     private GoogleMap gMap;
@@ -205,6 +205,7 @@ public class MapsActivity extends AppCompatActivity implements
     }
     @Override
     public boolean onOptionsItemSelected (@NonNull MenuItem item) {
+        Log.d("Menu Item", "onOptionsItemSelected: " + item.getItemId());
         if (item.getItemId() == R.id.search) {
             sessionToken = AutocompleteSessionToken.newInstance();
             return false;
@@ -469,6 +470,7 @@ public class MapsActivity extends AppCompatActivity implements
                 NearByResponse nearByResponse = response.body();
                 if (nearByResponse != null) {
                     nearByFacilities = nearByResponse.getResults();
+                    getFilterFragment(nearByFacilities);
                     getNearByFacilitiesListFragment(nearByFacilities);
                 }
                 dialog.dismiss();
@@ -480,6 +482,14 @@ public class MapsActivity extends AppCompatActivity implements
                 Toast.makeText(MapsActivity.this, "" + t.toString(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    private void getFilterFragment (List<Results> results){
+        filterFragment = FilterFragment.newInstance(results);
+        filterFragment.setOnFilterChangeListener(MapsActivity.this::onChangeFilter);
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.filter_fragment_container_view, filterFragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
     }
     private void getNearByFacilitiesListFragment (List<Results> results){
         isNearByFacilitiesListFragmentRetrieved = true;
@@ -495,15 +505,7 @@ public class MapsActivity extends AppCompatActivity implements
         fragmentTransaction.replace(R.id.fragment_container_view, nearbyFacilitiesListFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
-
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-        FilterFragment filterFragment = FilterFragment.newInstance(results);
-        //fragmentTransaction.add(filterFragment, "filter");
-        fragmentTransaction.add(R.id.fragment_container_view, filterFragment);
-        fragmentTransaction.addToBackStack(null);
-
-       // fragmentTransaction.commit();
-
     }
     protected class FacilityDetailsContract extends ActivityResultContract<Bundle, Results> {
         @NonNull
@@ -524,7 +526,9 @@ public class MapsActivity extends AppCompatActivity implements
             new FacilityDetailsContract(),
             (Results results) -> {onExitNearByFacilities(); showDistance(results); showDirection(results);}
     );
-
+    private void onChangeFilter(List<Results> results) {
+        getNearByFacilitiesListFragment(results);
+    }
     private void showDistance(Results chosenFacility) {
         LatLng chosenFacilityLatLng = chosenFacility.getGeometry().getLocation().getLatLng();
         LatLng currentLocationLatLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
@@ -646,6 +650,7 @@ public class MapsActivity extends AppCompatActivity implements
     }
     private void onExitNearByFacilities () {
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        getSupportFragmentManager().beginTransaction().remove(filterFragment).commit();
         removeMarkers();
         moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
         isNearByFacilitiesListFragmentRetrieved = false;
