@@ -12,6 +12,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.johntoro.myapplication.BuildConfig;
 import com.johntoro.myapplication.models.Constants;
 import com.johntoro.myapplication.models.EmergencyContact;
 import java.util.ArrayList;
@@ -23,7 +24,8 @@ public class ContactViewModel extends ViewModel {
     public final @Nullable MutableLiveData<EmergencyContact> contact;
     
     public ContactViewModel(){
-        this.dbcontacts = FirebaseDatabase.getInstance("https://sc2006app-e510e-default-rtdb.asia-southeast1.firebasedatabase.app").getReference(Constants.NODE_CONTACTS);
+        this.dbcontacts = FirebaseDatabase.getInstance(BuildConfig.DATABASE_URL).getReference(Constants.NODE_CONTACTS);
+
         this.result = new MutableLiveData<>();
         this.contact = new MutableLiveData<>();
         contactsList = new ArrayList<>();

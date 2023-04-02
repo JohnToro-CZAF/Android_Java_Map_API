@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
+    android:backgroundTint="@null"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".views.EmergencyContactsFragment">
 
