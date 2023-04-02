@@ -87,7 +87,7 @@ public class PlacePredictionAdapter extends RecyclerView.Adapter<PlacePrediction
         }
     }
 
-    interface OnPlaceClickListener {
+    public interface OnPlaceClickListener {
         void onPlaceClicked(AutocompletePrediction place);
     }
 }
