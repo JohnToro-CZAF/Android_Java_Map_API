@@ -125,6 +125,7 @@ public class EmergencyMessageActivity extends AppCompatActivity {
 
     private void hangUpCall() {
         Intent intent = new Intent(EmergencyMessageActivity.this, MapsActivity.class);
+        intent.putExtra("email", email);
         startActivity(intent);
     }
 }
