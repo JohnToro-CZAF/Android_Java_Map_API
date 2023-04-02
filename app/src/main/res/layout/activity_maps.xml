@@ -25,6 +25,7 @@
                 android:id="@+id/relLayout1"
                 android:orientation="vertical">
                 <androidx.appcompat.widget.Toolbar
+                    style="@style/Widget.AppCompat.ActionBar.Solid"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
                     android:id="@+id/toolbar"/>
