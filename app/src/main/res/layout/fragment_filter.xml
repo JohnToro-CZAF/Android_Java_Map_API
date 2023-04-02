@@ -15,6 +15,7 @@
         app:itemBackground="@color/red"
         app:itemIconTint="@color/white"
         app:itemTextColor="@color/white"
+        android:backgroundTint="#E24752"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="10dp"
@@ -30,6 +31,7 @@
         app:itemBackground="@color/red"
         app:itemIconTint="@color/white"
         app:itemTextColor="@color/white"
+        android:backgroundTint="#E24752"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/rating_view" />
