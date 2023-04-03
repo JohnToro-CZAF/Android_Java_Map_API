@@ -39,9 +39,9 @@ public class EmergencyMessageActivity extends AppCompatActivity {
     private String lat;
     private String longi;
     private Button hangUp;
-
+    ValueEventListener listener;
     private static final int PERMISSION_RQST_SEND = 0;
-
+    DatabaseReference dbcontacts;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,10 +52,9 @@ public class EmergencyMessageActivity extends AppCompatActivity {
         longi = getIntent().getStringExtra("long");
 
         //DatabaseReference dbcontacts = FirebaseDatabase.getInstance("https://sc2006app-e510e-default-rtdb.asia-southeast1.firebasedatabase.app").getReference(Constants.NODE_CONTACTS);
-        DatabaseReference dbcontacts = FirebaseDatabase.getInstance(BuildConfig.DATABASE_URL).getReference(Constants.NODE_CONTACTS);
+        dbcontacts = FirebaseDatabase.getInstance(BuildConfig.DATABASE_URL).getReference(Constants.NODE_CONTACTS);
         contactsList = new ArrayList<>();
-
-        dbcontacts.addValueEventListener(new ValueEventListener() {
+        listener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
@@ -68,11 +67,10 @@ public class EmergencyMessageActivity extends AppCompatActivity {
             }
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Getting Post failed, log a message
                 Log.w(TAG, "loadPost:onCancelled", databaseError.toException());
-                // ...
             }
-        });
+        };
+        dbcontacts.addValueEventListener(listener);
 
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.SEND_SMS)
@@ -124,8 +122,10 @@ public class EmergencyMessageActivity extends AppCompatActivity {
     }
 
     private void hangUpCall() {
-        Intent intent = new Intent(EmergencyMessageActivity.this, MapsActivity.class);
-        intent.putExtra("email", email);
-        startActivity(intent);
+//        Intent intent = new Intent(EmergencyMessageActivity.this, MapsActivity.class);
+//        intent.putExtra("email", email);
+//        startActivity(intent);
+        dbcontacts.removeEventListener(listener);
+        finish();
     }
 }
