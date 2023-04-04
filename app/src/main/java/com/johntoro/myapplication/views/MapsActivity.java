@@ -689,6 +689,7 @@ public class MapsActivity extends AppCompatActivity implements
         removeMarkers();
         moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
         isNearByFacilitiesListFragmentRetrieved = false;
+        searchedLocation = null;
     }
     private void onDropSuggestion (boolean isDrop) {
         if (isDrop) {
