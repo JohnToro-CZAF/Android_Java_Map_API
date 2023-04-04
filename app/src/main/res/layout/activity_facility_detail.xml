@@ -151,11 +151,12 @@
 
                     <LinearLayout
                         android:id="@+id/linearLayoutShowDistanceOnMap"
-                        android:layout_width="match_parent"
+                        android:layout_width="200dp"
                         android:layout_height="50dp"
                         android:layout_marginBottom="5dp"
                         android:layout_marginTop="5dp"
-                        android:background="@color/red_dark"
+                        android:layout_gravity="center_horizontal"
+                        android:background="@drawable/login_button"
                         android:gravity="center"
                         android:orientation="horizontal">
 
@@ -163,7 +164,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:text="Show direction on Map"
+                            android:text="@string/show_direction_on_map"
                             android:textColor="#fff"
                             android:textSize="15sp"
                             android:textStyle="bold" />
