@@ -197,7 +197,7 @@
         android:layout_gravity="bottom"
         android:layout_height="75dp"
         app:itemIconSize = "40dp"
-        app:itemBackground="@color/red"
+        app:itemBackground="@color/red_dark"
         app:itemIconTint="@color/white"
         app:itemTextColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
