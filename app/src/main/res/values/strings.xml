@@ -84,4 +84,6 @@
     <string name="police_number_text">999</string>
     <string name="emergency_button">Emergency Button</string>
     <string name="show_direction_on_map">Show direction on Map</string>
+    <string name="place_name">Place Name</string>
+    <string name="address">Address</string>
 </resources>

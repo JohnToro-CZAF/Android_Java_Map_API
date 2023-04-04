@@ -50,7 +50,7 @@
                     android:id="@+id/facilityName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Place Name"
+                    android:text="@string/place_name"
                     android:textColor="@color/white"
                     android:textSize="16sp" />
 
@@ -73,7 +73,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:textColor="@color/white"
-                        android:text="Address"
+                        android:text="@string/address"
                         android:textSize="13sp" />
 
                 </LinearLayout>
