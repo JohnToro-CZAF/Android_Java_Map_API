@@ -44,9 +44,7 @@ public class FacilityDetailsActivity extends AppCompatActivity {
 
         //added to prevent error for null object reference on getGeometry
         myToolbar.setNavigationOnClickListener(v -> {
-            Intent replyIntent = new Intent(FacilityDetailsActivity.this, MapsActivity.class);
-            replyIntent.putExtra("showDistance", (Serializable) results);
-            setResult(RESULT_OK, replyIntent);
+
             finish();
         });
         linearLayoutRating = (LinearLayout) findViewById(R.id.linearLayoutRating);
