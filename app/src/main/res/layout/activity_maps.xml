@@ -61,6 +61,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="120dp"
+                android:layout_marginStart="10dp"
                 android:layout_marginEnd="10dp"
                 android:orientation="horizontal"
                 android:elevation="10dp">
@@ -197,7 +198,7 @@
         android:layout_gravity="bottom"
         android:layout_height="75dp"
         app:itemIconSize = "40dp"
-        app:itemBackground="@color/red_dark"
+        app:itemBackground="@color/red"
         app:itemIconTint="@color/white"
         app:itemTextColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
