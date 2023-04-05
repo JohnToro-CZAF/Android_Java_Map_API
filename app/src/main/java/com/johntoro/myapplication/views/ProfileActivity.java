@@ -24,14 +24,15 @@ import com.google.firebase.database.ValueEventListener;
 import com.johntoro.myapplication.R;
 import com.johntoro.myapplication.models.User;
 
+/**
+ * An activity where the user can view their profile.
+ */
 public class ProfileActivity extends AppCompatActivity{
 
     //create user
     private FirebaseUser user;
     private DatabaseReference reference;
-
     private String userID;
-
     private Button backButton;
     private Button logoutButton;
     GoogleSignInOptions gso;
@@ -40,6 +41,12 @@ public class ProfileActivity extends AppCompatActivity{
     String email;
     static String userEmail;
 
+
+    /**
+     * Overrides onCreate() to initialise UI showing current user profile information based on
+     * Google login or Email and Password login.
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,10 +61,12 @@ public class ProfileActivity extends AppCompatActivity{
                 .requestEmail()
                 .build();
 
+        //Retrieve information from user logged in with Google
         gsc=GoogleSignIn.getClient(this,gso);
         //check if user signed in with google
         GoogleSignInAccount googleAccount = GoogleSignIn.getLastSignedInAccount(this);
 
+        //Retrieve information from user logged in with email and password
         if(googleAccount == null){
             user = FirebaseAuth.getInstance().getCurrentUser();
             reference = FirebaseDatabase.getInstance("https://sc2006app-e510e-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("Users");
@@ -69,8 +78,10 @@ public class ProfileActivity extends AppCompatActivity{
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     //if user didn't log in with google
                     User userProfile = snapshot.getValue(User.class);
-                    fullName = userProfile.fullName;
-                    email = userProfile.email;
+//                    fullName = userProfile.fullName;
+//                    email = userProfile.email;
+                    fullName = userProfile.getFullName();
+                    email = userProfile.getEmail();
 
                     fullNameTextView.setText(fullName);
                     emailTextView.setText(email);
@@ -88,10 +99,13 @@ public class ProfileActivity extends AppCompatActivity{
             fullNameTextView.setText(fullName);
             emailTextView.setText(email);
         }
-        //set view emergency contacts button
+
+        //Return to previous activity
         backButton.setOnClickListener((View view) -> {
             goBack();
         });
+
+        //Log out of user account
         logoutButton.setOnClickListener((View view) -> {
             if(googleAccount != null)
                 googleLogOut();
@@ -99,10 +113,18 @@ public class ProfileActivity extends AppCompatActivity{
                 logOut();
         });
     }
+
+    /**
+     * Logs out of user account that logged in with email and password.
+     */
     private void logOut() {
         FirebaseAuth.getInstance().signOut();
         startActivity(new Intent(getApplicationContext(), LoginActivity.class));
     }
+
+    /**
+     * Logs out of user account that logged in with Google.
+     */
     private void googleLogOut() {
         gsc.signOut().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -112,10 +134,19 @@ public class ProfileActivity extends AppCompatActivity{
             }
         });
     }
+
+    /**
+     * Returns to previous activity.
+     */
     private void goBack() {
         finish();
     }
-    public static String getUserEmail(){
-        return userEmail;
-    }
+
+    /**
+     * Retrieves current user email.
+     * @return user email
+     */
+//    public static String getUserEmail(){
+//        return userEmail;
+//    }
 }

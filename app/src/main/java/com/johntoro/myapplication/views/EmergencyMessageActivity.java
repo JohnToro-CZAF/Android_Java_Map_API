@@ -31,17 +31,23 @@ import com.johntoro.myapplication.models.Location;
 
 import java.util.ArrayList;
 
+/**
+ * An activity where the user can send messages to their emergency contacts.
+ */
 public class EmergencyMessageActivity extends AppCompatActivity {
-
     private String email;
     private ArrayList<EmergencyContact> contactsList;
-
     private String lat;
     private String longi;
     private Button hangUp;
     ValueEventListener listener;
     private static final int PERMISSION_RQST_SEND = 0;
     DatabaseReference dbcontacts;
+
+    /**
+     * Overrides onCreate() to connect to database and send a message to each contact.
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,9 +57,10 @@ public class EmergencyMessageActivity extends AppCompatActivity {
         lat = getIntent().getStringExtra("lat");
         longi = getIntent().getStringExtra("long");
 
-        //DatabaseReference dbcontacts = FirebaseDatabase.getInstance("https://sc2006app-e510e-default-rtdb.asia-southeast1.firebasedatabase.app").getReference(Constants.NODE_CONTACTS);
         dbcontacts = FirebaseDatabase.getInstance(BuildConfig.DATABASE_URL).getReference(Constants.NODE_CONTACTS);
         contactsList = new ArrayList<>();
+
+        //When a new contact is sensed, send a message to the contact.
         listener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -70,6 +77,7 @@ public class EmergencyMessageActivity extends AppCompatActivity {
                 Log.w(TAG, "loadPost:onCancelled", databaseError.toException());
             }
         };
+
         dbcontacts.addValueEventListener(listener);
 
         if (ContextCompat.checkSelfPermission(this,
@@ -84,6 +92,7 @@ public class EmergencyMessageActivity extends AppCompatActivity {
             }
         }
 
+        //Set listener for Hang Up button
         hangUp = findViewById(R.id.end_call_button);
 
         hangUp.setOnClickListener(new View.OnClickListener() {
@@ -96,16 +105,20 @@ public class EmergencyMessageActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Requests for permission and sends a message to each of the user's emergency contacts.
+     * @param contact
+     */
     public void sendEmergencyMessage(EmergencyContact contact){
         String message = (email + (" needs help! Here are their coordinates: Latitude: ") + lat + " | Longitude: " + longi);
         String phoneNo;
 
         Log.d("Send Emergency Message", "Running now!");
 
-        phoneNo = contact.mobile;
+        phoneNo = contact.getMobile();
         Log.d("Current Phone Number", phoneNo);
 
-        if(contact.userEmail.equals(this.email)){
+        if(contact.getUserEmail().equals(this.email)){
             try {
                 SmsManager smsManager = SmsManager.getDefault();
                 smsManager.sendTextMessage(phoneNo, null, message, null, null);
@@ -121,6 +134,9 @@ public class EmergencyMessageActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Returns to previous activity.
+     */
     private void hangUpCall() {
 //        Intent intent = new Intent(EmergencyMessageActivity.this, MapsActivity.class);
 //        intent.putExtra("email", email);

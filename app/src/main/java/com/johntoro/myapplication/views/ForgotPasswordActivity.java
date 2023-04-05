@@ -15,6 +15,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.johntoro.myapplication.R;
 
+/**
+ * An activity where the user can reset their password.
+ */
 public class ForgotPasswordActivity extends AppCompatActivity {
 
     private EditText emailEditText;
@@ -22,6 +25,10 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
     FirebaseAuth auth;
 
+    /**
+     * Overrides onCreate() to connect to authentication database.
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,7 +49,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
     }
 
     /**
-     * Resets password
+     * Resets user password.
      */
     private void resetPassword(){
         String email = emailEditText.getText().toString().trim();

@@ -17,17 +17,28 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
+import com.johntoro.myapplication.BuildConfig;
 import com.johntoro.myapplication.R;
 import com.johntoro.myapplication.models.User;
 
+/**
+ * An activity where a user can register for a new account.
+ */
 public class RegisterUserActivity extends AppCompatActivity implements View.OnClickListener {
-    private TextView registerGoogle, login, registerUser;
+    private TextView login, registerUser;
     private EditText editTextFullName, editTextEmail, editTextPassword, editTextConfirmPassword;
-    private FirebaseAuth mAuth; //initialise firebase
+    private FirebaseAuth mAuth;
+
+    private String fullName, email, password, confirmPassword;
+
+    /**
+     * Overrides onCreate() to define view elements.
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.register_user); //set layouts
+        setContentView(R.layout.register_user);
         mAuth = FirebaseAuth.getInstance();
         registerUser = (Button) findViewById(R.id.register_button);
         registerUser.setOnClickListener(this);
@@ -38,10 +49,15 @@ public class RegisterUserActivity extends AppCompatActivity implements View.OnCl
         editTextPassword = (EditText) findViewById(R.id.password_field);
         editTextConfirmPassword = (EditText) findViewById(R.id.confirmpassword_field);
     }
+
+    /**
+     * Sets onClickListener() for view elements.
+     * @param v
+     */
     @Override
     public void onClick(View v) {
-        switch(v.getId()){ //get ID of target
-            case R.id.prompt_login_2: //if login ->  go to login activity
+        switch(v.getId()){
+            case R.id.prompt_login_2:
                 startActivity(new Intent(this, LoginActivity.class));
                 break;
             case R.id.register_button:
@@ -49,13 +65,19 @@ public class RegisterUserActivity extends AppCompatActivity implements View.OnCl
                 break;
         }
     }
+
+    /**
+     * Registers a new user in the database.
+     */
     private void registerUser() {
-        String fullName = editTextFullName.getText().toString().trim();
-        String email = editTextEmail.getText().toString().trim();
-        String password = editTextPassword.getText().toString().trim();
-        String confirmPassword = editTextConfirmPassword.getText().toString().trim();
-        //ERROR CHECKING//
-        //check if fields empty
+        fullName = editTextFullName.getText().toString().trim();
+        email = editTextEmail.getText().toString().trim();
+        password = editTextPassword.getText().toString().trim();
+        confirmPassword = editTextConfirmPassword.getText().toString().trim();
+
+        //ERROR CHECKING
+
+        //Check that fields are not empty
         if(fullName.isEmpty()){
             editTextFullName.setError("Full name is required!");
             editTextFullName.requestFocus();
@@ -76,39 +98,41 @@ public class RegisterUserActivity extends AppCompatActivity implements View.OnCl
             editTextConfirmPassword.requestFocus();
             return;
         }
-        //check email format
+
+        //Check email format
         if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
             editTextEmail.setError("Please provide a valid email.");
             editTextEmail.requestFocus();
             return;
         }
-        //check that passwords match
+
+        //Check that passwords match
         if(!password.equals(confirmPassword)){
             editTextConfirmPassword.setError("Passwords don't match!");
             editTextConfirmPassword.requestFocus();
             return;
         }
-        //check that passwords are a correct length
+
+        //Check that passwords are a correct length
         if(password.length() < 8){
             editTextPassword.setError("Password must be at least 8 characters!");
             editTextPassword.requestFocus();
             return;
         }
-        //CREATE USER IN FIREBASE with email, password
+
+        //Create user in Firebase with email and password
         mAuth.createUserWithEmailAndPassword(email, password)
-                //if task complete, check if it was successful
+                //Check that task was successful
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>(){
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task){
-                        //if success, create new user
+                        //If success, create new user
                         if(task.isSuccessful()) {
                             User user = new User(fullName, email);
 
-                            //realtime database; create User in collection "Users"
-                            //need to pass database url in getInstance
-                            FirebaseDatabase.getInstance("https://sc2006app-e510e-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("Users")
+                            //Add User to Firebase Realtime Database
+                            FirebaseDatabase.getInstance(BuildConfig.DATABASE_URL).getReference("Users")
                                     .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                    //set User object to User registered in database (with ID)
                                     .setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {

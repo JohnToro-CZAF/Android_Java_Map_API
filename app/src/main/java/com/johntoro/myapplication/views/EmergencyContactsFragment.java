@@ -30,6 +30,9 @@ import com.johntoro.myapplication.views.AddEmergencyContactFragment;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * An activity where the user can view their emergency contacts.
+ */
 public class EmergencyContactsFragment extends Fragment {
     private ContactAdapter adapter = new ContactAdapter();
     private FragmentEmergencyContactsBinding binding;
@@ -37,12 +40,30 @@ public class EmergencyContactsFragment extends Fragment {
     private String email;
     private ArrayList<EmergencyContact> contactsList;
 
+    /**
+     * Overrides activity's onCreate method to retrieve the user email.
+     * @param savedInstanceState If the fragment is being re-created from
+     * a previous saved state, this is the state.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         email = getActivity().getIntent().getStringExtra("email");
 
     }
+
+    /**
+     * Overrides onCreateView() to show list of emergency contacts.
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -51,6 +72,12 @@ public class EmergencyContactsFragment extends Fragment {
         return binding.getRoot();
     }
 
+    /**
+     * Overrides onViewCreated() to update list view of emergency contacts.
+     * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     */
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState){
         super.onViewCreated(view, savedInstanceState);
@@ -88,6 +115,10 @@ public class EmergencyContactsFragment extends Fragment {
             }
         });
     }
+
+    /**
+     * Sets an emergency contact to be deleted when swiped.
+     */
     private ItemTouchHelper.SimpleCallback simpleCallBack =
             new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
                 @Override
@@ -115,7 +146,9 @@ public class EmergencyContactsFragment extends Fragment {
 
             };
 
-    //return to previous
+    /**
+     * Return to previous activity.
+     */
     public void goBack(){
         requireActivity().finish();
     }

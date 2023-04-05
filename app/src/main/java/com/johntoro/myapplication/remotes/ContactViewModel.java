@@ -17,20 +17,30 @@ import com.johntoro.myapplication.models.Constants;
 import com.johntoro.myapplication.models.EmergencyContact;
 import java.util.ArrayList;
 
+/**
+ * Retrieves and updates Emergency Contacts data from Firebase.
+ */
 public class ContactViewModel extends ViewModel {
     public DatabaseReference dbcontacts;
     public ArrayList<EmergencyContact> contactsList;
     public final @Nullable MutableLiveData<Exception> result;
     public final @Nullable MutableLiveData<EmergencyContact> contact;
-    
+
+    /**
+     * Constructor for ContactViewModel.
+     */
     public ContactViewModel(){
         this.dbcontacts = FirebaseDatabase.getInstance(BuildConfig.DATABASE_URL).getReference(Constants.NODE_CONTACTS);
-
         this.result = new MutableLiveData<>();
         this.contact = new MutableLiveData<>();
         contactsList = new ArrayList<>();
 
     }
+
+    /**
+     * Gets exception if not null.
+     * @return exception
+     */
     public @Nullable LiveData<Exception> getResult() {
         if (this.result != null) {
             LiveData<Exception> result = this.result;
@@ -39,6 +49,11 @@ public class ContactViewModel extends ViewModel {
             return null;
         }
     }
+
+    /**
+     * Gets emergency contact if not null.
+     * @return emergency contact
+     */
     public @Nullable LiveData<EmergencyContact> getContact(){
         if (this.contact != null) {
             LiveData<EmergencyContact> contact = this.contact;
@@ -47,15 +62,26 @@ public class ContactViewModel extends ViewModel {
             return null;
         }
     }
-    //get emergency contacts list
-    public ArrayList<EmergencyContact> getContactsList(){
-        return this.contactsList;
-    }
+
+    /**
+     * Gets emergency contacts list.
+     * @return emergency contacts list
+     */
+//    public ArrayList<EmergencyContact> getContactsList(){
+//        return this.contactsList;
+//    }
+//
+
+    /**
+     * Adds contact to Firebase database.
+     * @param contact
+     */
     public void addContact(EmergencyContact contact){
-        //create reference for object and generate key
-        contact.id = dbcontacts.push().getKey();
-        //set value for child in database
-        dbcontacts.child(contact.id).setValue(contact).addOnCompleteListener(new OnCompleteListener<Void>() {
+        //Create reference for Emergency Contact object and generate key
+        contact.setId(dbcontacts.push().getKey());
+
+        //Set value for child in database
+        dbcontacts.child(contact.getId()).setValue(contact).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
@@ -68,23 +94,26 @@ public class ContactViewModel extends ViewModel {
 
     }
 
-    //listen for when a new contact added
+    /**
+     * ChildEventListener to sense when a new contact is added to database.
+     */
     private ChildEventListener childEventListener = new ChildEventListener() {
         @Override
         public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
             EmergencyContact contact = snapshot.getValue(EmergencyContact.class);
-            contact.id = snapshot.getKey();
+            contact.setId(snapshot.getKey());
             ContactViewModel.this.contact.setValue(contact);
             contactsList.add(contact);
         }
         @Override
         public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
-        //notify UI that contact has been deleted
+
+        //Notify UI that contact has been deleted
         @Override
         public void onChildRemoved(@NonNull DataSnapshot snapshot) {
             EmergencyContact contact = snapshot.getValue(EmergencyContact.class);
-            contact.id = snapshot.getKey();
-            contact.isDeleted = true;
+            contact.setId(snapshot.getKey());
+            contact.setDeleted(true);
             ContactViewModel.this.contact.setValue(contact);
         }
         @Override
@@ -93,14 +122,19 @@ public class ContactViewModel extends ViewModel {
         public void onCancelled(@NonNull DatabaseError error) {}
     };
 
-    //get updates to database
+    /**
+     * Get updates from Firebase database.
+     */
     public void getRealtimeUpdate(){
         dbcontacts.addChildEventListener(childEventListener);
     }
 
-    //Delete Contact
+    /**
+     * Delete contact from Firebase.
+     * @param contact
+     */
     public void deleteContact(EmergencyContact contact){
-        dbcontacts.child(contact.id).setValue(null)
+        dbcontacts.child(contact.getId()).setValue(null)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
@@ -112,6 +146,10 @@ public class ContactViewModel extends ViewModel {
                     }
                 });
     }
+
+    /**
+     * Remove event listener from contact list to prevent resource leak.
+     */
     @Override
     protected void onCleared() {
         super.onCleared();

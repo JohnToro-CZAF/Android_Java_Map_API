@@ -20,13 +20,21 @@ import com.johntoro.myapplication.remotes.ContactViewModel;
 import com.johntoro.myapplication.R;
 import com.johntoro.myapplication.models.EmergencyContact;
 
-
+/**
+ * Represents a fragment where the user can add an emergency contact.
+ */
 public class AddEmergencyContactFragment extends Fragment {
 
     private FragmentAddEmergencyContactBinding binding;
     private ProfileActivity profileActivity = new ProfileActivity();
     private ContactViewModel viewModel;
-    String userEmail;
+    String userEmail, fullName, email, mobile;
+
+    /**
+     * Overrides this fragment's onCreate method.
+     * @param savedInstanceState If the fragment is being re-created from
+     * a previous saved state, this is the state.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,6 +43,18 @@ public class AddEmergencyContactFragment extends Fragment {
         Log.d("AddEmergencyContact", "Email: " + userEmail);
     }
 
+    /**
+     * Overrides this fragment's onCreateView method.
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return root of binding
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -43,6 +63,12 @@ public class AddEmergencyContactFragment extends Fragment {
         return binding.getRoot();
     }
 
+    /**
+     * Overrides this fragment's onViewCreated method.
+     * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -58,17 +84,18 @@ public class AddEmergencyContactFragment extends Fragment {
                 }
 
                 Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
-                //dismiss?
             }
         });
+
+        //Add Contact button
         binding.addContactButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //validation
-                String fullName = binding.fullnameField.getText().toString().trim();
-                String mobile = binding.phoneNumberField.getText().toString().trim();
-                String email = binding.emailField.getText().toString().trim();
+                fullName = binding.fullnameField.getText().toString().trim();
+                mobile = binding.phoneNumberField.getText().toString().trim();
+                email = binding.emailField.getText().toString().trim();
 
+                //Error Checking
                 if(fullName.isEmpty()){
                     binding.fullnameField.setError("Full Name is required!");
                     binding.fullnameField.requestFocus();
@@ -88,13 +115,15 @@ public class AddEmergencyContactFragment extends Fragment {
                 }
 
                 EmergencyContact contact = new EmergencyContact();
-                contact.userEmail = userEmail;
-                contact.fullName = fullName;
-                contact.mobile = mobile;
-                contact.email = email;
+                contact.setUserEmail(userEmail);
+                contact.setFullName(fullName);
+                contact.setMobile(mobile);
+                contact.setEmail(email);
                 viewModel.addContact(contact);
             }
         });
+
+        //Back button
         binding.backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -102,7 +131,10 @@ public class AddEmergencyContactFragment extends Fragment {
             }
         });
     }
-    //go back
+
+    /**
+     * Returns to EmergencyContactsFragment.
+     */
     public void goBack(){
         int id = ((ViewGroup) getView().getParent()).getId();
         Fragment fragment = new EmergencyContactsFragment();
