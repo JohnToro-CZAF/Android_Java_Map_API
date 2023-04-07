@@ -9,28 +9,61 @@ public class FilterControl {
     private boolean isActiveHours;
     private boolean isRating;
     private static final String TAG = "FilterControl";
+
+    /**
+     * default constructor
+     */
     public FilterControl(){
         this.isActiveHours = false;
         this.isRating = false;
     }
+
+    /**
+     * FilterControl constructor
+     * @param rating if set to true, then List is sorted by rating
+     * @param active if set to true, then List is sorted by whether locations are open
+     */
     public FilterControl(boolean rating, boolean active){
         this.isActiveHours = active;
         this.isRating = rating;
     }
     // when click on filter by rating, set this to true
+
+    /**
+     * activeHours setter
+     * @param activeHours sets activeHours to true or false.
+     */
     public void setActiveHours(boolean activeHours) {
         this.isActiveHours = activeHours;
     }
+    /**
+     * activeHours setter
+     * @param rating sets rating to true or false.
+     */
     public void setRating(boolean rating) {
         this.isRating = rating;
     }
+
+    /**
+     * negation of isActiveHours
+     */
     public void toggleActiveHours(){
         this.isActiveHours = !this.isActiveHours;
     }
+    /**
+     * negation of isRating
+     */
     public void toggleRating(){
         this.isRating = !this.isRating;
     }
 
+    /**
+     * method to sort a List of Results. method will sort the List according to
+     * whether isRating or isActiveHours is true.
+     *
+     * @param nearByPlaces passes a List of Results to be sorted
+     * @return returns the sorted list either based on rating or whether the locations are open
+     */
     public List<Results> sort(List<Results> nearByPlaces){
         Log.d("FilterControl", "sort: " + nearByPlaces.toString());
         if (isActiveHours){
@@ -69,9 +102,18 @@ public class FilterControl {
         Log.d("FilterControl", "sort: " + nearByPlaces.toString());
         return nearByPlaces;
     }
+
+    /**
+     * getter for isActiveHours
+     * @return boolean value of isActiveHours
+     */
     public boolean getActiveHours(){
         return this.isActiveHours;
     }
+    /**
+     * getter for isRating
+     * @return boolean value of isRating
+     */
     public boolean getRating(){
         return this.isRating;
     }
