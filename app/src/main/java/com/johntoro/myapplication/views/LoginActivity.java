@@ -33,6 +33,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.johntoro.myapplication.R;
 
+/**
+ * An activity where the user can log into the app.
+ */
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
     private static final String TAG = "MainActivity";
     private static final int ERROR_DIALOG_REQUEST = 9001;
@@ -41,15 +44,21 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private Button signIn;
     private SignInButton googleLogin;
     private FirebaseAuth mAuth;
-    private SignInClient oneTapClient;
-    private BeginSignInRequest signUpRequest;
-    private static final int REQ_ONE_TAP = 2;  // Can be any integer unique to the Activity.
+    //private SignInClient oneTapClient;
+    //private BeginSignInRequest signUpRequest;
+    //private static final int REQ_ONE_TAP = 2;  // Can be any integer unique to the Activity.
     private boolean showOneTapUI = true;
-    //ActivityResultLauncher activityResultLauncher;
+
+    private String email, password;
+
     GoogleSignInOptions gso;
     GoogleSignInClient gsc;
 
 
+    /**
+     * Override onCreate() to check services.
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,6 +67,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             init();
         }
     }
+
+    /**
+     * Checks for errors in making map requests.
+     * @return whether there is no error
+     */
     public boolean isServicesOK() {
         Log.d(TAG, "isServicesOK: checking google services version");
         int available = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(LoginActivity.this);
@@ -78,6 +92,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         return false;
     }
 
+    /**
+     * Create variables based on view elements and assign onClickListener().
+     */
     private void init() {
         Log.d(TAG, "init: initializing");
         register = (TextView) findViewById(R.id.prompt_registration);
@@ -101,15 +118,23 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             }
         });
     }
-    @Override
-    public void onStart() {
-        super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-//        if(currentUser != null){
-//            startActivity(new Intent(LoginActivity.this, MapsActivity.class)); //take to home
-//        }
-    }
+
+
+    //can be removed?
+    /**
+     * Overrides onStart() to retrieve current logged-in user.
+     */
+//    @Override
+//    public void onStart() {
+//        super.onStart();
+//        // Check if user is signed in (non-null) and update UI accordingly.
+//        FirebaseUser currentUser = mAuth.getCurrentUser();
+//    }
+
+    /**
+     * Defines onClickListener() for view elements.
+     * @param v
+     */
     @Override
     public void onClick(View v) {
         switch(v.getId()){
@@ -117,16 +142,22 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 startActivity(new Intent(this, RegisterUserActivity.class)); //take to user
                 break;
             case R.id.login_button:
-                String email = editTextEmail.getText().toString().trim();
-                String password = editTextPassword.getText().toString().trim();
-                userLogin();
-                //presenter.doLogin(email, password);
+                email = editTextEmail.getText().toString().trim();
+                password = editTextPassword.getText().toString().trim();
+                userLogin(email, password);
                 break;
             case R.id.forgotpassword_button:
                 startActivity(new Intent(this, ForgotPasswordActivity.class));
                 break;
         }
     }
+
+    /**
+     * Overrides onActivityResult() for Google Sign In.
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -144,9 +175,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             }
         }
     }
-    private void userLogin(){
-        String email = editTextEmail.getText().toString().trim();
-        String password = editTextPassword.getText().toString().trim();
+
+    /**
+     * Logs user in through email and password.
+     * @param email
+     * @param password
+     */
+    private void userLogin(String email, String password){
         if(email.isEmpty()){
             editTextEmail.setError("Email is required!");
             editTextEmail.requestFocus();
@@ -188,11 +223,20 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             }
         });
     }
+
+    /**
+     * Signs user in through Google One-Tap Sign In.
+     */
     public void googleSignIn(){
         Intent intent = gsc.getSignInIntent();
         Log.d("NVM", "googleSignIn: " + intent);
         startActivityForResult(intent, 100);
     }
+
+    /**
+     * Returns to previous activity.
+     * @param email
+     */
     private void goToHome(String email) {
         finish();
         Intent intent = new Intent(getApplicationContext(), MapsActivity.class);

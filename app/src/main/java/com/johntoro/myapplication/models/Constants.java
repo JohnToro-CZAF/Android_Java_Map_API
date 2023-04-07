@@ -1,5 +1,8 @@
 package com.johntoro.myapplication.models;
-//tool to help write data to firebase
+
+/**
+ * Defines constants.
+ */
 public final class Constants {
     private Constants() {
         // restrict instantiation

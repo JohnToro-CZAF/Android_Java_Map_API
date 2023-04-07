@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal"
     android:paddingStart='4dp'
+    android:layout_gravity="center_horizontal"
     tools:context="views.FilterFragment">
     <Button
         android:id="@+id/is_open_button"
@@ -15,10 +16,13 @@
         app:itemBackground="@color/red"
         app:itemIconTint="@color/white"
         app:itemTextColor="@color/white"
-        android:backgroundTint="#E24752"
+        android:backgroundTint="@color/red"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:layout_marginEnd="10dp"
+        android:padding="4dp"
+        android:textSize="11sp"
+        android:textStyle="bold"
         android:text="@string/is_open_button"/>
     <Button
         android:id="@+id/rating_filter_button"
@@ -31,8 +35,11 @@
         app:itemBackground="@color/red"
         app:itemIconTint="@color/white"
         app:itemTextColor="@color/white"
-        android:backgroundTint="#E24752"
+        android:backgroundTint="@color/red"
+        android:padding="4dp"
+        android:textSize="11sp"
+        android:textStyle="bold"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:text="@string/rating_view" />
 </LinearLayout>
