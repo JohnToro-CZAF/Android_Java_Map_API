@@ -1,3 +1,10 @@
+/**
+
+ This class represents a ViewModel for managing emergency contacts.
+ It extends the ViewModel class provided by Android Architecture Components.
+ The ViewModel holds a reference to a database and manages a list of EmergencyContact objects.
+ It also contains MutableLiveData objects for storing the result of an operation and a single contact.
+ */
 package com.johntoro.myapplication.remotes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,9 +24,6 @@ import com.johntoro.myapplication.models.Constants;
 import com.johntoro.myapplication.models.EmergencyContact;
 import java.util.ArrayList;
 
-/**
- * Retrieves and updates Emergency Contacts data from Firebase.
- */
 public class ContactViewModel extends ViewModel {
     public DatabaseReference dbcontacts;
     public ArrayList<EmergencyContact> contactsList;
@@ -67,10 +71,9 @@ public class ContactViewModel extends ViewModel {
      * Gets emergency contacts list.
      * @return emergency contacts list
      */
-//    public ArrayList<EmergencyContact> getContactsList(){
-//        return this.contactsList;
-//    }
-//
+    public ArrayList<EmergencyContact> getContactsList(){
+        return this.contactsList;
+    }
 
     /**
      * Adds contact to Firebase database.
@@ -82,6 +85,9 @@ public class ContactViewModel extends ViewModel {
 
         //Set value for child in database
         dbcontacts.child(contact.getId()).setValue(contact).addOnCompleteListener(new OnCompleteListener<Void>() {
+            /**
+             * @param task A task that contains the result of the operation.
+             */
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
@@ -98,6 +104,9 @@ public class ContactViewModel extends ViewModel {
      * ChildEventListener to sense when a new contact is added to database.
      */
     private ChildEventListener childEventListener = new ChildEventListener() {
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
             EmergencyContact contact = snapshot.getValue(EmergencyContact.class);
@@ -105,10 +114,15 @@ public class ContactViewModel extends ViewModel {
             ContactViewModel.this.contact.setValue(contact);
             contactsList.add(contact);
         }
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
 
-        //Notify UI that contact has been deleted
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void onChildRemoved(@NonNull DataSnapshot snapshot) {
             EmergencyContact contact = snapshot.getValue(EmergencyContact.class);
@@ -116,8 +130,14 @@ public class ContactViewModel extends ViewModel {
             contact.setDeleted(true);
             ContactViewModel.this.contact.setValue(contact);
         }
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void onCancelled(@NonNull DatabaseError error) {}
     };
@@ -131,7 +151,7 @@ public class ContactViewModel extends ViewModel {
 
     /**
      * Delete contact from Firebase.
-     * @param contact
+     * @param contact emergency contact
      */
     public void deleteContact(EmergencyContact contact){
         dbcontacts.child(contact.getId()).setValue(null)
@@ -148,6 +168,7 @@ public class ContactViewModel extends ViewModel {
     }
 
     /**
+     * {@inheritDoc}
      * Remove event listener from contact list to prevent resource leak.
      */
     @Override
@@ -155,6 +176,4 @@ public class ContactViewModel extends ViewModel {
         super.onCleared();
         dbcontacts.removeEventListener(childEventListener);
     }
-
-
 }

@@ -1,3 +1,7 @@
+/**
+
+ A class that parses a JSON object containing directions and returns a list of lists containing latitude and longitude.
+ */
 package com.johntoro.myapplication.remotes;
 import com.google.android.gms.maps.model.LatLng;
 import org.json.JSONArray;
@@ -12,6 +16,8 @@ public class DirectionsJSONParser {
 
     /**
      * Receives a JSONObject and returns a list of lists containing latitude and longitude
+     * @param jObject - JSONObject
+     * @return - List of lists containing latitude and longitude
      */
     public List<List<HashMap<String, String>>> parse(JSONObject jObject) {
 
@@ -62,6 +68,8 @@ public class DirectionsJSONParser {
     /**
      * Method to decode polyline points
      * Courtesy : http://jeffreysambells.com/2010/05/27/decoding-polylines-from-google-maps-direction-api-with-java
+     * @param encoded - Encoded polyline string
+     * @return - List of LatLngs
      */
     private List<LatLng> decodePoly(String encoded) {
 

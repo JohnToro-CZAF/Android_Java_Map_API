@@ -33,6 +33,7 @@ public class RegisterUserActivity extends AppCompatActivity implements View.OnCl
 
     /**
      * Overrides onCreate() to define view elements.
+     * {@inheritDoc}
      * @param savedInstanceState
      */
     @Override
@@ -52,7 +53,8 @@ public class RegisterUserActivity extends AppCompatActivity implements View.OnCl
 
     /**
      * Sets onClickListener() for view elements.
-     * @param v
+     * {@inheritDoc}
+     * @param v the view element
      */
     @Override
     public void onClick(View v) {

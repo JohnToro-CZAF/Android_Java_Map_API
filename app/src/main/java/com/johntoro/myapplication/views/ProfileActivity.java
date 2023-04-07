@@ -78,8 +78,6 @@ public class ProfileActivity extends AppCompatActivity{
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     //if user didn't log in with google
                     User userProfile = snapshot.getValue(User.class);
-//                    fullName = userProfile.fullName;
-//                    email = userProfile.email;
                     fullName = userProfile.getFullName();
                     email = userProfile.getEmail();
 
@@ -146,7 +144,7 @@ public class ProfileActivity extends AppCompatActivity{
      * Retrieves current user email.
      * @return user email
      */
-//    public static String getUserEmail(){
-//        return userEmail;
-//    }
+    public static String getUserEmail(){
+        return userEmail;
+    }
 }

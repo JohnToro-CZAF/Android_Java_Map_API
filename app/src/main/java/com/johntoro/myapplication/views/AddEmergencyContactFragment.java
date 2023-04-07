@@ -107,7 +107,6 @@ public class AddEmergencyContactFragment extends Fragment {
                     binding.phoneNumberField.requestFocus();
                     return;
                 }
-
                 if(email.isEmpty()){
                     binding.emailField.setError("Email is required!");
                     binding.emailField.requestFocus();

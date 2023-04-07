@@ -185,9 +185,7 @@ public class MapsActivity extends AppCompatActivity implements
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         Intent intent = getIntent();
-
         userEmail = intent.getStringExtra("email");
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setSupportActionBar(findViewById(R.id.toolbar));
@@ -813,7 +811,6 @@ public class MapsActivity extends AppCompatActivity implements
                 lineOptions.addAll(points);
                 lineOptions.width(10);
                 lineOptions.color(Color.RED);
-
                 Log.d("onPostExecute", "onPostExecute lineoptions decoded");
             }
             // Drawing polyline in the Google Map for the i-th route
